@@ -24,7 +24,18 @@ fetch('data/data.json')
         { title: "Name", field: "Name", widthGrow: 2 },
         { title: "Price", field: "Price", formatter: "money", formatterParams: { decimal: ".", thousand: ",", symbol: "$" } },
         { title: "Save %", field: "Save %" },
-        { title: "PC Pts", field: "PC Pts", sorter: "number", headerFilter: "number" },
+        {
+          title: "PC Pts",
+          field: "PC Pts",
+          sorter: "number",
+          formatter: function(cell) {
+            const value = cell.getValue();
+            if (value === null || value === undefined || value === "") return "";
+            // Format as integer with comma separator
+            return Number(value).toLocaleString('en-CA', { maximumFractionDigits: 0 });
+          },
+          headerFilter: "number" // or we'll change this below
+        },
         { title: "Valid From", field: "Valid From" },
         { title: "Valid To", field: "Valid To" },
         {
