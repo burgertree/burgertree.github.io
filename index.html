@@ -3,11 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DeepFlyers.car</title>
+  <title>Superstore Deals Tracker</title>
+  <!-- Tabulator CSS -->
   <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-  <!-- AdSense placeholder -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR_ADSENSE_ID" crossorigin="anonymous"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; }
+    header { margin-bottom: 20px; }
+    .filters button {
+      margin-right: 10px; margin-bottom: 10px;
+      padding: 8px 12px;
+      background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;
+    }
+    .filters button:hover { background: #0056b3; }
+    footer { margin-top: 30px; font-size: 0.85em; color: #666; }
+  </style>
 </head>
 <body>
   <header>
@@ -15,18 +24,19 @@
     <div class="filters">
       <button onclick="filterHighPoints()">Top PC Points (10k+)</button>
       <button onclick="filterActive()">Active Deals Only</button>
-      <button onclick="clearFilters()">Clear Filters</td>
+      <button onclick="clearFilters()">Clear Filters</button>
     </div>
   </header>
 
   <div id="table"></div>
 
-  <footer style="margin-top: 40px; padding: 20px; background-color: #f9f9f9; font-size: 0.85em; color: #555;">
-    <p><strong>Disclaimer:</strong> The information provided on this website is for general informational and educational purposes only... 
-    <a href="disclaimer.html">[Read Full Disclaimer]</a></p>
+  <footer>
+    <p><strong>Disclaimer:</strong> For informational purposes only. Not affiliated with Loblaw or PC Optimum. Verify all deals at retailer.</p>
+    <p><a href="disclaimer.html">Full Disclaimer</a></p>
   </footer>
-  
+
+  <!-- Tabulator JS -->
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
-  <script src="js/main.js"></script>
+  <script src="js/main.js" defer></script>
 </body>
 </html>
