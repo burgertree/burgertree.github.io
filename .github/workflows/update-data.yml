@@ -21,15 +21,19 @@ jobs:
           csvtojson data/data.csv > data/data.json
 
       - name: Commit and push if changed
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          mkdir -p data
+          # ... (your curl/csv steps above) ...
+      
           git add data/
           if ! git diff --staged --quiet; then
             git commit -m "Update deals data"
-            # Use PAT to push
-            git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/burgertree/burgertree.github.io.git
+            git remote set-url origin https://x-access-token:$GH_PAT@github.com/burgertree/burgertree.github.io.git
             git push
           else
-            echo "No changes detected. Skipping commit."
+            echo "No changes to commit."
           fi
