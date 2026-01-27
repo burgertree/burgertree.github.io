@@ -28,7 +28,7 @@ fetch('data/data.json')
 
     // Initialize Tabulator
     table = new Tabulator("#table", {
-       data,
+      data,
       layout: "fitColumns",
       pagination: "local",
       paginationSize: 20,
@@ -44,29 +44,30 @@ fetch('data/data.json')
           title: "Retailer",
           field: "Retailer",
           hozAlign: "center",
-          headerFilter: "autocomplete",
+          headerFilter: "list",
           headerFilterParams: {
-            values: retailers,
-            allowEmpty: true
+            values: ["", ...retailers],
+            clearable: true
           }
         },
         {
           title: "Province",
           field: "Province",
           hozAlign: "center",
-          headerFilter: "select",
+          headerFilter: "list",
           headerFilterParams: {
-            values: ["", ...provinces]
+            values: ["", ...provinces],
+            clearable: true
           }
         },
         {
           title: "Brand",
           field: "Brand",
           hozAlign: "center",
-          headerFilter: "autocomplete",
+          headerFilter: "list",
           headerFilterParams: {
-            values: brands,
-            allowEmpty: true
+            values: ["", ...brands],
+            clearable: true
           }
         },
         {
@@ -82,7 +83,12 @@ fetch('data/data.json')
           field: "Price",
           hozAlign: "center",
           formatter: "money",
-          formatterParams: { decimal: ".", thousand: ",", symbol: "$" }
+          formatterParams: { 
+            decimal: ".", 
+            thousand: ",", 
+            symbol: "$",
+            precision: 2
+          }
         },
         {
           title: "Save %",
