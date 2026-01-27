@@ -2,8 +2,8 @@ name: Update Deals Data
 
 on:
   schedule:
-    - cron: '0 2 * * 1'  # Runs weekly on Monday at 02:00 UTC
-  workflow_dispatch:     # Allows manual trigger from GitHub UI
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
 
 jobs:
   update:
@@ -12,49 +12,42 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # 🔑 MUST be false for PAT-based push
 
-      - name: Set up Node.js (for CSV → JSON conversion)
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Create data directory and fetch CSV from Google Sheets
+      - name: Fetch CSV and convert to JSON
         run: |
           mkdir -p data
           curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRZSbsCeZtldwD_WceGfrw4Bi6wSOfnWXP3udDDvnBBB4LNVRXDBM-lLRSvzRGCV5NaC3ndaG_tedT/pub?gid=1149713552&single=true&output=csv" > data/data.csv
-          echo "✅ CSV downloaded."
-
-      - name: Convert CSV to JSON
-        run: |
           npm install -g csvtojson
           csvtojson data/data.csv > data/data.json
-          echo "✅ CSV converted to JSON."
 
       - name: Commit and push if changed
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          # Verify token is present
+          # Safety check
           if [ -z "$GH_PAT" ]; then
             echo "❌ GH_PAT secret is missing!"
             exit 1
           fi
-      
-          # Configure Git identity
+
+          # Configure Git
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-      
-          # Stage files
+
+          # Reconfigure remote with PAT
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/burgertree/burgertree.github.io.git
+
+          # Stage and commit
           git add data/data.csv data/data.json
-      
-          # Only commit if there are changes
           if ! git diff --staged --quiet; then
             git commit -m "Update deals data"
-      
-            # 🔑 CRITICAL: Reconfigure remote with PAT BEFORE pushing
-            git remote set-url origin https://x-access-token:${GH_PAT}@github.com/burgertree/burgertree.github.io.git
-      
-            # Now push
             git push
             echo "✅ Push successful."
           else
