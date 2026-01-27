@@ -1,39 +1,53 @@
 name: Update Deals Data
+
 on:
   schedule:
-    - cron: '0 2 * * 1'  # Weekly on Monday
-  workflow_dispatch:     # Allow manual trigger
+    - cron: '0 2 * * 1'  # Runs weekly on Monday at 02:00 UTC
+  workflow_dispatch:     # Allows manual trigger from GitHub UI
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Fetch CSV from Google Sheets
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js (for CSV → JSON conversion)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create data directory and fetch CSV from Google Sheets
         run: |
           mkdir -p data
           curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRZSbsCeZtldwD_WceGfrw4Bi6wSOfnWXP3udDDvnBBB4LNVRXDBM-lLRSvzRGCV5NaC3ndaG_tedT/pub?gid=1149713552&single=true&output=csv" > data/data.csv
+          echo "✅ CSV downloaded."
 
-      - name: Convert CSV to JSON (optional but useful)
+      - name: Convert CSV to JSON
         run: |
           npm install -g csvtojson
           csvtojson data/data.csv > data/data.json
+          echo "✅ CSV converted to JSON."
 
       - name: Commit and push if changed
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}  # Must be set in repo secrets
         run: |
+          # Configure Git
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          mkdir -p data
-          # ... (your curl/csv steps above) ...
-      
-          git add data/
+
+          # Stage files
+          git add data/data.csv data/data.json
+
+          # Check if there are changes
           if ! git diff --staged --quiet; then
             git commit -m "Update deals data"
-            git remote set-url origin https://x-access-token:$GH_PAT@github.com/burgertree/burgertree.github.io.git
+            # Use PAT to authenticate push (required for *.github.io repos)
+            git remote set-url origin https://x-access-token:${GH_PAT}@github.com/burgertree/burgertree.github.io.git
             git push
+            echo "✅ Changes committed and pushed."
           else
-            echo "No changes to commit."
+            echo "ℹ️ No changes detected. Skipping commit."
           fi
