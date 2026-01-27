@@ -44,7 +44,7 @@ function filterHighPoints() {
 }
 
 function filterActive() {
-  const today = "2026-01-27"; // Replace with dynamic date if needed
+  const today = new Date().toISOString().split('T')[0];
   table.setFilter([
     { field: "Valid From", type: "<=", value: today },
     { field: "Valid To", type: ">=", value: today },
