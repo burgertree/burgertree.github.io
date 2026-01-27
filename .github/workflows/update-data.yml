@@ -12,6 +12,7 @@ jobs:
 
       - name: Fetch CSV from Google Sheets
         run: |
+          mkdir -p data
           curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRZSbsCeZtldwD_WceGfrw4Bi6wSOfnWXP3udDDvnBBB4LNVRXDBM-lLRSvzRGCV5NaC3ndaG_tedT/pub?gid=1149713552&single=true&output=csv" > data/data.csv
 
       - name: Convert CSV to JSON (optional but useful)
