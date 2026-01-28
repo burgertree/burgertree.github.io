@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Simplified Top Navigation -->
+  <!-- Top Navigation -->
   <nav class="top-nav">
     <div class="nav-container">
       <a href="index.html">Home</a>
@@ -20,13 +20,23 @@
     </div>
   </nav>
 
-  <!-- Main Header with Centered Logo -->
+  <!-- Main Header -->
   <header class="main-header">
     <img src="img/logo.png" alt="SaveSave.ca" class="site-logo">
-    <textarea id="highlights" placeholder="Deals Highlights: e.g., Top PC Optimum offers this week..."></textarea>
+    
+    <!-- Deals Highlights as Bullet List -->
+    <div class="deals-highlights">
+      <strong>This Week's Top Deals:</strong>
+      <ul>
+        <li>🔥 Up to 15,000 PC Optimum points on Huggies Diapers & Wipes</li>
+        <li>💰 Save $10 on Fridababy products with 10,000 pts</li>
+        <li>🍗 Buy 2 Wings, Get 5,000 pts back</li>
+        <li>🧴 Neutrogena Face & Hair Care – 5,000 pts when you buy 2</li>
+      </ul>
+    </div>
   </header>
 
-  <!-- Rest of content -->
+  <!-- Table Controls -->
   <div class="container">
     <div class="filters">
       <button onclick="filterHighPoints()">Top PC Points (10k+)</button>
