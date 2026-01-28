@@ -1,0 +1,17 @@
+<!-- savesave-logo.svg -->
+<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Top half: Yellow background, red "SAVE" -->
+  <rect width="400" height="100" fill="#FFD700"/> <!-- Gold-yellow -->
+  <text x="50%" y="65" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="#E60012">
+    SAVE
+  </text>
+
+  <!-- Bottom half: Red background, yellow "SAVE" + ".ca" -->
+  <rect y="100" width="400" height="100" fill="#E60012"/> <!-- Bright red -->
+  <text x="50%" y="165" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="#FFD700">
+    SAVE
+  </text>
+  <text x="300" y="185" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="white">
+    .ca
+  </text>
+</svg>
