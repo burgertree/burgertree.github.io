@@ -1,73 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-  <link rel="manifest" href="/img/site.webmanifest">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SaveSave.ca — Track All Flyer Deals</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SaveSave.ca — Canadian Deals Tracker</title>
+  <!-- Tabulator CSS -->
   <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
-
   <!-- Your custom CSS -->
   <link rel="stylesheet" href="css/style.css">
-
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6383908528138628"
-    crossorigin="anonymous"></script>
 </head>
-
 <body>
-  <!-- Navigation -->
-  <nav class="modern-nav">
+  <!-- Simplified Top Navigation -->
+  <nav class="top-nav">
     <div class="nav-container">
-      <a href="index.html" class="nav-logo">
-        <img src="img/logo.png" alt="SaveSave.ca" width="180">
-      </a>
-      <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="disclaimer.html">Disclaimer</a>
-      </div>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="disclaimer.html">Disclaimer</a>
     </div>
   </nav>
 
-  <div class="container">
-    <header>
-      <img src="img/logo.png" alt="SaveSave.ca — Track All Flyer Deals" width="200">
-      <h1>SaveSave.ca — Track All Flyer Deals</h1>
-      <section>
-        <h3>Deals Highlights</h3>
-        <ul id="highlights">
-          <li>Bonus PC Optimum points on pantry staples</li>
-          <li>Fresh produce price drops this week</li>
-          <li>Strong member-only promotions</li>
-        </ul>
-      </section>
-    </header>
+  <!-- Main Header with Centered Logo -->
+  <header class="main-header">
+    <img src="img/logo.png" alt="SaveSave.ca" class="site-logo">
+    <textarea id="highlights" placeholder="Deals Highlights: e.g., Top PC Optimum offers this week..."></textarea>
+  </header>
 
+  <!-- Rest of content -->
+  <div class="container">
     <div class="filters">
       <button onclick="filterHighPoints()">Top PC Points (10k+)</button>
       <button onclick="filterActive()">Active Deals Only</button>
       <button onclick="clearFilters()">Clear Filters</button>
     </div>
 
-    <!-- Replace the table div in index.html with: -->
     <div class="table-container">
       <div id="table"></div>
     </div>
   </div>
 
   <footer>
-    <p><strong>Disclaimer:</strong> Data sourced from public flyers of retailers including Real Canadian Superstore,
-      Walmart, Shoppers Drug Mart, Save-On-Foods, and others.</p>
+    <p><strong>SaveSave.ca</strong> — Weekly Canadian retail deals tracker.</p>
   </footer>
 
   <!-- Scripts -->
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
   <script src="js/main.js" defer></script>
 </body>
-
 </html>
