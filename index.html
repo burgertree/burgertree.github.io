@@ -4,19 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Superstore Deals Tracker</title>
-  <!-- Tabulator CSS -->
   <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      padding: 20px;
+      padding: 0;
+      margin: 0;
       background-color: #f8f9fa;
     }
-    header {
+    nav {
+      background: #343a40;
+      padding: 12px 20px;
       text-align: center;
-      margin-bottom: 20px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: 500;
+    }
+    nav a:hover { text-decoration: underline; }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #highlights {
+      width: 100%;
+      height: 80px;
+      padding: 12px;
+      margin: 15px 0;
+      font-family: inherit;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      resize: vertical;
     }
     .filters {
+      text-align: center;
       margin: 15px 0;
     }
     .filters button {
@@ -28,42 +56,50 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    .filters button:hover {
-      background: #0056b3;
-    }
+    .filters button:hover { background: #0056b3; }
     #table {
       width: 100%;
       min-width: 900px;
-      margin: 0 auto;
+      margin: 20px 0;
     }
     footer {
-      margin-top: 30px;
       text-align: center;
+      padding: 20px;
       font-size: 0.85em;
       color: #666;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Weekly Superstore Deals</h1>
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="disclaimer.html">Disclaimer</a>
+  </nav>
+
+  <div class="container">
+    <header>
+      <h1>Weekly Grocery & Retail Deals</h1>
+      <textarea id="highlights" placeholder="Deals Highlights: e.g., Top PC Optimum offers this week..."></textarea>
+    </header>
+
     <div class="filters">
       <button onclick="filterHighPoints()">Top PC Points (10k+)</button>
       <button onclick="filterActive()">Active Deals Only</button>
       <button onclick="clearFilters()">Clear Filters</button>
     </div>
-  </header>
 
-  <div id="table"></div>
+    <div id="table"></div>
+  </div>
 
   <footer>
-    <p><strong>Disclaimer:</strong> For informational purposes only. Not affiliated with Loblaw or PC Optimum.</p>
-    <p><a href="disclaimer.html">Full Disclaimer</a></p>
+    <p><strong>Disclaimer:</strong> Data sourced from public flyers of retailers including Real Canadian Superstore, Walmart, Shoppers Drug Mart, Save-On-Foods, and others.</p>
   </footer>
 
-  <!-- Tabulator JS -->
+  <!-- Scripts -->
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
-  <!-- Your custom script -->
   <script src="js/main.js" defer></script>
 </body>
 </html>
