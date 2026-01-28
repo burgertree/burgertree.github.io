@@ -1,205 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
   <link rel="manifest" href="/img/site.webmanifest">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SaveSave.ca — Track All Flyer Deals</title>
   <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
-  <style>
-    /* Modern Navigation Bar — matches SaveSave.ca branding */
-    .modern-nav {
-      background: linear-gradient(to bottom, #FFD700 50%, #E60012 50%);
-      padding: 8px 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      position: relative;
-    }
-    
-    .modern-nav::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: rgba(255,255,255,0.3);
-      transform: translateY(-50%);
-    }
-    
-    .nav-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .nav-logo {
-      display: block;
-      text-decoration: none;
-    }
-    
-    .nav-logo img {
-      height: 48px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-    }
-    
-    .nav-links {
-      display: flex;
-      gap: 28px;
-    }
-    
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 16px;
-      padding: 6px 12px;
-      border-radius: 4px;
-      transition: all 0.3s ease;
-    }
-    
-    .nav-links a:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
-    }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-      .nav-container {
-        flex-direction: column;
-        gap: 12px;
-      }
-      .nav-links {
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      .nav-links a {
-        padding: 8px 16px;
-        font-size: 15px;
-      }
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      padding: 0;
-      margin: 0;
-      background-color: #f8f9fa;
-    }
-    nav {
-      background: #343a40;
-      padding: 12px 20px;
-      text-align: center;
-    }
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin: 0 15px;
-      font-weight: 500;
-    }
-    nav a:hover { text-decoration: underline; }
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    header h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    #highlights {
-      width: 100%;
-      height: 80px;
-      padding: 12px;
-      margin: 15px 0;
-      font-family: inherit;
-      border: 1px solid #ced4da;
-      border-radius: 6px;
-      resize: vertical;
-    }
-    .filters {
-      text-align: center;
-      margin: 15px 0;
-    }
-    .filters button {
-      margin: 5px;
-      padding: 8px 16px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .filters button:hover { background: #0056b3; }
-    #table {
-      width: 100%;
-      min-width: 900px;
-      margin: 20px 0;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 0.85em;
-      color: #666;
-    }
-    .table-container {
-      overflow-x: auto;
-      width: 100%;
-      margin: 20px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    #table {
-      min-width: 900px; /* ensures layout integrity */
-    }
-    @media (max-width: 768px) {
-      .filters button {
-        display: block;
-        width: 90%;
-        margin: 5px auto;
-      }
-      #highlights {
-        height: 100px;
-      }
-    }
-  </style>
+
+  <!-- Your custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6383908528138628"
-     crossorigin="anonymous"></script>
+    crossorigin="anonymous"></script>
 </head>
+
 <body>
   <!-- Navigation -->
- <nav class="modern-nav">
-  <div class="nav-container">
-    <a href="index.html" class="nav-logo">
-      <img src="img/logo.png" alt="SaveSave.ca" width="180">
-    </a>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-      <a href="disclaimer.html">Disclaimer</a>
+  <nav class="modern-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <img src="img/logo.png" alt="SaveSave.ca" width="180">
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="disclaimer.html">Disclaimer</a>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
   <div class="container">
     <header>
       <img src="img/logo.png" alt="SaveSave.ca — Track All Flyer Deals" width="200">
 
-  <div class="container">
+      <div class="container">
 
-  <h1>Contact Us</h1>
-  <p>Email: contact@yourdomain.com</p>
+        <h1>Contact Us</h1>
+        <p>Email: contact@yourdomain.com</p>
 
-  <footer>
-    <p><strong>Disclaimer:</strong> Data sourced from public flyers of retailers including Real Canadian Superstore, Walmart, Shoppers Drug Mart, Save-On-Foods, and others.</p>
-  </footer>
+        <footer>
+          <p><strong>Disclaimer:</strong> Data sourced from public flyers of retailers including Real Canadian
+            Superstore, Walmart, Shoppers Drug Mart, Save-On-Foods, and others.</p>
+        </footer>
 
-  <!-- Scripts -->
-  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
-  <script src="js/main.js" defer></script>
+        <!-- Scripts -->
+        <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
+        <script src="js/main.js" defer></script>
 </body>
+
 </html>

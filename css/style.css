@@ -1,0 +1,153 @@
+/* =============== Reset & Base =============== */
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+/* =============== Navigation Bar =============== */
+.modern-nav {
+  background: linear-gradient(to bottom, #FFD700 50%, #E60012 50%);
+  padding: 8px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.modern-nav::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.3);
+  transform: translateY(-50%);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo img {
+  height: 48px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* =============== Main Content =============== */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header h1 {
+  text-align: center;
+  margin: 20px 0 10px;
+  color: #222;
+}
+
+#highlights {
+  width: 100%;
+  height: 80px;
+  padding: 12px;
+  margin: 15px 0;
+  font-family: inherit;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  resize: vertical;
+  font-size: 15px;
+}
+
+.filters {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.filters button {
+  margin: 5px;
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.filters button:hover {
+  background: #0056b3;
+}
+
+/* =============== Table Container =============== */
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+  margin: 20px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+#table {
+  min-width: 900px;
+}
+
+/* =============== Footer =============== */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.85em;
+  color: #666;
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+}
+
+/* =============== Responsive =============== */
+@media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .filters button {
+    display: block;
+    width: 90%;
+    margin: 5px auto;
+  }
+  #highlights {
+    height: 100px;
+  }
+}
