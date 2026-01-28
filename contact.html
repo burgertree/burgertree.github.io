@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Superstore Deals Tracker</title>
+  <title>SaveSave.ca — Track All Flyer Deals</title>
   <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
   <style>
     body {
@@ -68,6 +68,26 @@
       font-size: 0.85em;
       color: #666;
     }
+    .table-container {
+      overflow-x: auto;
+      width: 100%;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    #table {
+      min-width: 900px; /* ensures layout integrity */
+    }
+    @media (max-width: 768px) {
+      .filters button {
+        display: block;
+        width: 90%;
+        margin: 5px auto;
+      }
+      #highlights {
+        height: 100px;
+      }
+    }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6383908528138628"
      crossorigin="anonymous"></script>
@@ -80,6 +100,10 @@
     <a href="contact.html">Contact</a>
     <a href="disclaimer.html">Disclaimer</a>
   </nav>
+
+  <div class="container">
+    <header>
+      <img src="img/logo.svg" alt="SaveSave.ca — Track All Flyer Deals" width="200">
 
   <div class="container">
 
