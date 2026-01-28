@@ -68,6 +68,26 @@
       font-size: 0.85em;
       color: #666;
     }
+    .table-container {
+      overflow-x: auto;
+      width: 100%;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    #table {
+      min-width: 900px; /* ensures layout integrity */
+    }
+    @media (max-width: 768px) {
+      .filters button {
+        display: block;
+        width: 90%;
+        margin: 5px auto;
+      }
+      #highlights {
+        height: 100px;
+      }
+    }
   </style>
 </head>
 <body>
