@@ -2,38 +2,31 @@
 <html lang="en">
 
 <head>
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-  <link rel="manifest" href="/img/site.webmanifest">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SaveSave.ca — Track All Flyer Deals</title>
+  <title>SaveSave.ca — Canadian Deals Tracker</title>
+  <!-- Tabulator CSS -->
   <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
-
   <!-- Your custom CSS -->
   <link rel="stylesheet" href="css/style.css">
-
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6383908528138628"
-    crossorigin="anonymous"></script>
 </head>
 
 <body>
-  <!-- Navigation -->
-  <!-- Navigation -->
-  <nav class="modern-nav">
+  <!-- Top Navigation -->
+  <nav class="top-nav">
     <div class="nav-container">
-      <a href="index.html" class="nav-logo">
-        <img src="img/logo.png" alt="SaveSave.ca" width="180">
-      </a>
-      <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="disclaimer.html">Disclaimer</a>
-      </div>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="disclaimer.html">Disclaimer</a>
     </div>
   </nav>
+
+  <!-- Main Header -->
+  <header class="main-header">
+    <img src="img/logo.png" alt="SaveSave.ca" class="site-logo">
+  </header>
+
 
   <div class="container">
     <header>
@@ -62,6 +55,14 @@
       <p>Always verify current pricing and availability directly with the retailer before making a purchase.</p>
 
       <p><em>Last updated: January 27, 2026</em></p>
+
+      <footer>
+        <p><strong>SaveSave.ca</strong> — Weekly Canadian retail deals tracker.</p>
+      </footer>
+
+      <!-- Scripts -->
+      <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
+      <script src="js/main.js" defer></script>
 </body>
 
 </html>
