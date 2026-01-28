@@ -52,88 +52,103 @@ fetch('data/data.json')
           title: "Retailer",
           field: "Retailer",
           hozAlign: "center",
+          headerHozAlign: "center",
           headerFilter: "autocomplete",
-          headerFilterParams: { values: retailers, allowEmpty: true }
+          headerFilterParams: { values: retailers, allowEmpty: true },
+          width: 140
         },
         {
           title: "Province",
           field: "Province",
           hozAlign: "center",
+          headerHozAlign: "center",
           headerFilter: "select",
-          headerFilterParams: { values: ["", ...provinces] }
+          headerFilterParams: { values: ["", ...provinces] },
+          width: 90
         },
         {
           title: "Brand",
           field: "Brand",
           hozAlign: "center",
+          headerHozAlign: "center",
           headerFilter: "autocomplete",
-          headerFilterParams: { values: brands, allowEmpty: true }
+          headerFilterParams: { values: brands, allowEmpty: true },
+          width: 120
         },
         {
-          title: "Product",
-          columns: [
-            {
-              title: "Name",
-              field: "Name",
-              hozAlign: "left",
-              headerHozAlign: "left",
-              width: "30%", // ~1.5× wider
-              headerFilter: "input", // autocomplete on wide text is poor UX → use input
-              formatter: "plaintext"
-            },
-            {
-              title: "Description",
-              field: "Description",
-              hozAlign: "left",
-              headerHozAlign: "left",
-              width: "20%",
-              headerFilter: "input",
-              formatter: "plaintext"
-            }
-          ]
+          title: "Name",
+          field: "Name",
+          hozAlign: "left",
+          headerHozAlign: "left",
+          headerFilter: "input",
+          formatter: "plaintext",
+          minWidth: 200,
+          widthGrow: 2
+        },
+        {
+          title: "Description",
+          field: "Description",
+          hozAlign: "left",
+          headerHozAlign: "left",
+          // ❌ No headerFilter → not searchable
+          formatter: "plaintext",
+          minWidth: 150,
+          widthGrow: 1
         },
         {
           title: "Price",
           field: "Price",
           hozAlign: "center",
+          headerHozAlign: "center",
           formatter: "money",
-          formatterParams: { decimal: ".", thousand: ",", symbol: "$" }
+          formatterParams: { decimal: ".", thousand: ",", symbol: "$" },
+          width: 80
         },
         {
           title: "Save %",
           field: "Save %",
           hozAlign: "center",
-          headerFilter: "input"
+          headerHozAlign: "center",
+          headerFilter: "input",
+          width: 80
         },
         {
           title: "PC Pts",
           field: "PC Pts",
           hozAlign: "center",
+          headerHozAlign: "center",
           sorter: "number",
           formatter: function(cell) {
             const val = cell.getValue();
             if (val === null || val === undefined || val === 0) return "";
             return val.toLocaleString('en-CA', { maximumFractionDigits: 0 });
-          }
+          },
+          width: 90
         },
         {
           title: "Valid From",
           field: "Valid From",
-          hozAlign: "center"
+          hozAlign: "center",
+          headerHozAlign: "center",
+          width: 100
         },
         {
           title: "Valid To",
           field: "Valid To",
-          hozAlign: "center"
+          hozAlign: "center",
+          headerHozAlign: "center",
+          width: 100
         },
         {
           title: "Details",
           field: "Item Web URL",
           hozAlign: "center",
+          headerHozAlign: "center",
           formatter: function(cell) {
             const url = cell.getValue();
-            return url ? `<a href="${url}" target="_blank" rel="noopener">View Product</a>` : "";
-          }
+            return url ? `<a href="${url}" target="_blank" rel="noopener">View</a>` : "";
+          },
+          width: 80
         }
       ]
     });
