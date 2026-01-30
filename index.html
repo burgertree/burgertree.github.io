@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SaveSave.ca — Canadian Deals Tracker</title>
   <!-- Tabulator CSS -->
   <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
-  <!-- Your custom CSS -->
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -27,7 +24,7 @@
   <header class="main-header">
     <img src="img/logo.png" alt="SaveSave.ca" class="site-logo">
     
-    <!-- Deals Highlights as Bullet List -->
+    <!-- Deals Highlights -->
     <div class="deals-highlights">
       <strong>This Week's Top Deals:</strong>
       <ul>
@@ -39,21 +36,25 @@
     </div>
   </header>
 
-  <!-- Table Controls -->
+  <!-- Filter Buttons -->
   <div class="container">
     <div class="filters">
       <button onclick="filterHighPoints()">Top PC Points (10k+)</button>
       <button onclick="filterActive()">Active Deals Only</button>
-      <button onclick="clearFilters()">Clear Filters</button>
+      <button onclick="filterBC()">Best Deals in BC</button>
+      <button onclick="filterON()">Best Deals in ON</button>
+      <button onclick="filterAB()">Best Deals in AB</button>
+      <button onclick="clearFilters()">Clear All</button>
     </div>
 
+    <!-- Table -->
     <div class="table-container">
       <div id="table"></div>
     </div>
   </div>
 
   <footer>
-    <p><strong>SaveSave.ca</strong> — Weekly Canadian grocery deals tracker.</p>
+    <p><strong>SaveSave.ca</strong> — Weekly Canadian retail deals tracker.</p>
   </footer>
 
   <!-- Scripts -->

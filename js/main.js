@@ -1,4 +1,4 @@
-// Helper: Parse "15,000" or "15000" → 15000
+// Helper: Parse "15,000" → 15000
 function parsePoints(str) {
   if (!str) return 0;
   const clean = str.toString().replace(/,/g, '').trim();
@@ -23,22 +23,17 @@ fetch('data/data.json')
       'Description': (row['Description'] || '').toString().trim()
     }));
 
-    // Extract unique, non-empty values for filters
-    const provinces = [...new Set(
-      data.map(r => r.Province).filter(p => p !== "" && p.length > 0)
-    )].sort();
+    // Extract unique, non-empty values
+    const provinces = [...new Set(data.map(r => r.Province).filter(p => p))].sort();
+    const retailers = [...new Set(data.map(r => r.Retailer).filter(r => r))].sort();
+    const brands = [...new Set(data.map(r => r.Brand).filter(b => b))].sort();
 
-    const retailers = [...new Set(
-      data.map(r => r.Retailer).filter(r => r !== "" && r.length > 0)
-    )].sort();
+    // Debug: check filter values
+    console.log("Filter counts → Retailers:", retailers.length, "Provinces:", provinces.length, "Brands:", brands.length);
 
-    const brands = [...new Set(
-      data.map(r => r.Brand).filter(b => b !== "" && b.length > 0)
-    )].sort();
-
-    // Initialize Tabulator
+    // Initialize table
     table = new Tabulator("#table", {
-      data,
+       data,
       layout: "fitColumns",
       pagination: "local",
       paginationSize: 20,
@@ -54,21 +49,27 @@ fetch('data/data.json')
           field: "Retailer",
           hozAlign: "center",
           headerFilter: "autocomplete",
-          headerFilterParams: { values: retailers, allowEmpty: true }
+          headerFilterParams: { values: retailers, allowEmpty: true },
+          width: 130,
+          minWidth: 100
         },
         {
           title: "Province",
           field: "Province",
           hozAlign: "center",
           headerFilter: "select",
-          headerFilterParams: { values: ["", ...provinces] }
+          headerFilterParams: { values: ["", ...provinces] },
+          width: 90,
+          minWidth: 80
         },
         {
           title: "Brand",
           field: "Brand",
           hozAlign: "center",
           headerFilter: "autocomplete",
-          headerFilterParams: { values: brands, allowEmpty: true }
+          headerFilterParams: { values: brands, allowEmpty: true },
+          width: 120,
+          minWidth: 100
         },
         {
           title: "Name",
@@ -85,7 +86,6 @@ fetch('data/data.json')
           field: "Description",
           hozAlign: "left",
           headerHozAlign: "left",
-          // No filter on Description
           formatter: "plaintext",
           minWidth: 150,
           widthGrow: 1
@@ -108,19 +108,19 @@ fetch('data/data.json')
           field: "PC Pts",
           hozAlign: "center",
           sorter: "number",
-          formatter: function (cell) {
+          formatter: function(cell) {
             const val = cell.getValue();
             if (val === null || val === undefined || val === 0) return "";
             return val.toLocaleString('en-CA', { maximumFractionDigits: 0 });
           }
         },
         {
-          title: "Valid From",
+          title: "Valid<br>From",
           field: "Valid From",
           hozAlign: "center"
         },
         {
-          title: "Valid To",
+          title: "Valid<br>To",
           field: "Valid To",
           hozAlign: "center"
         },
@@ -128,7 +128,7 @@ fetch('data/data.json')
           title: "Details",
           field: "Item Web URL",
           hozAlign: "center",
-          formatter: function (cell) {
+          formatter: function(cell) {
             const url = cell.getValue();
             return url ? `<a href="${url}" target="_blank" rel="noopener">View</a>` : "";
           }
@@ -141,7 +141,7 @@ fetch('data/data.json')
     document.getElementById("table").innerHTML = "<p style='text-align:center;color:red;'>Error loading deals.</p>";
   });
 
-// Global filter functions
+// ===== FILTER FUNCTIONS =====
 function filterHighPoints() {
   table.setFilter("PC Pts", ">=", 10000);
 }
@@ -152,6 +152,45 @@ function filterActive() {
     { field: "Valid From", type: "<=", value: today },
     { field: "Valid To", type: ">=", value: today },
     { field: "has_Expired", type: "=", value: "FALSE" }
+  ]);
+}
+
+function filterBC() {
+  const today = new Date().toISOString().split('T')[0];
+  table.setFilter([
+    { field: "Province", type: "=", value: "BC" },
+    { field: "Valid From", type: "<=", value: today },
+    { field: "Valid To", type: ">=", value: today },
+    [
+      { field: "PC Pts", type: ">=", value: 1000 },
+      { field: "Save %", type: "!=", value: "" }
+    ]
+  ]);
+}
+
+function filterON() {
+  const today = new Date().toISOString().split('T')[0];
+  table.setFilter([
+    { field: "Province", type: "=", value: "ON" },
+    { field: "Valid From", type: "<=", value: today },
+    { field: "Valid To", type: ">=", value: today },
+    [
+      { field: "PC Pts", type: ">=", value: 1000 },
+      { field: "Save %", type: "!=", value: "" }
+    ]
+  ]);
+}
+
+function filterAB() {
+  const today = new Date().toISOString().split('T')[0];
+  table.setFilter([
+    { field: "Province", type: "=", value: "AB" },
+    { field: "Valid From", type: "<=", value: today },
+    { field: "Valid To", type: ">=", value: today },
+    [
+      { field: "PC Pts", type: ">=", value: 1000 },
+      { field: "Save %", type: "!=", value: "" }
+    ]
   ]);
 }
 
