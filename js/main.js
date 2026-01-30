@@ -43,7 +43,7 @@ fetch('data/data.json')
     }
 
     table = new Tabulator("#table", {
-       data,
+      data,
       layout: "fitColumns",
       pagination: "local",
       paginationSize: 20,
@@ -57,21 +57,21 @@ fetch('data/data.json')
           title: "Retailer",
           field: "Retailer",
           hozAlign: "center",
-          headerFilter: "autocomplete",
+          headerFilter: "list",  // Changed from autocomplete
           headerFilterParams: {
-            values: retailers,
-            allowEmpty: true,
-            searchFunc: "contains"
+            values: ["", ...retailers],
+            clearable: true
           },
-          width: 140  // ← Critical: fixed width
+          width: 140
         },
         {
           title: "Province",
           field: "Province",
           hozAlign: "center",
-          headerFilter: "select",  // ← Dropdown, not text
+          headerFilter: "list",  // Changed from select to list for consistency
           headerFilterParams: {
-            values: ["", ...provinces]  // include blank option
+            values: ["", ...provinces],
+            clearable: true
           },
           width: 90
         },
@@ -79,11 +79,10 @@ fetch('data/data.json')
           title: "Brand",
           field: "Brand",
           hozAlign: "center",
-          headerFilter: "autocomplete",
+          headerFilter: "list",  // Changed from autocomplete
           headerFilterParams: {
-            values: brands,
-            allowEmpty: true,
-            searchFunc: "contains"
+            values: ["", ...brands],
+            clearable: true
           },
           width: 130
         },
@@ -111,20 +110,26 @@ fetch('data/data.json')
           field: "Price",
           hozAlign: "center",
           formatter: "money",
-          formatterParams: { decimal: ".", thousand: ",", symbol: "$" }
+          formatterParams: { 
+            decimal: ".", 
+            thousand: ",", 
+            symbol: "$",
+            precision: 2
+          }
         },
         {
           title: "Save %",
           field: "Save %",
           hozAlign: "center",
-          headerFilter: "select",  // ← Dropdown with ranges
+          headerFilter: "list",  // Changed from select
           headerFilterParams: {
             values: {
               "": "All",
               "20": "> 20%",
               "50": "> 50%",
               "75": "> 75%"
-            }
+            },
+            clearable: true
           },
           width: 100
         },
