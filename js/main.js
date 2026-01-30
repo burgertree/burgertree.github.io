@@ -1,4 +1,3 @@
-// Helper: Parse "15,000" → 15000
 function parsePoints(str) {
   if (!str) return 0;
   const clean = str.toString().replace(/,/g, '').trim();
@@ -11,7 +10,7 @@ let table;
 fetch('data/data.json')
   .then(response => response.json())
   .then(rawData => {
-    // Clean data
+    // Clean data + log sample
     const data = rawData.map(row => ({
       ...row,
       'PC Pts': parsePoints(row['PC Pts']),
@@ -20,25 +19,35 @@ fetch('data/data.json')
       'Retailer': (row['Retailer'] || '').toString().trim(),
       'Brand': (row['Brand'] || '').toString().trim(),
       'Name': (row['Name'] || '').toString().trim(),
-      'Description': (row['Description'] || '').toString().trim()
+      'Description': (row['Description'] || '').toString().trim(),
+      'Save %': (row['Save %'] || '').toString().trim()
     }));
 
-    // Extract unique, non-empty values
-    const provinces = [...new Set(data.map(r => r.Province).filter(p => p))].sort();
-    const retailers = [...new Set(data.map(r => r.Retailer).filter(r => r))].sort();
-    const brands = [...new Set(data.map(r => r.Brand).filter(b => b))].sort();
+    // Extract UNIQUE, NON-EMPTY values
+    const provinces = [...new Set(
+      data.map(r => r.Province).filter(p => p && p.length > 0)
+    )].sort();
 
-    // Debug: check filter values
-    console.log("Filter counts → Retailers:", retailers.length, "Provinces:", provinces.length, "Brands:", brands.length);
+    const retailers = [...new Set(
+      data.map(r => r.Retailer).filter(r => r && r.length > 0)
+    )].sort();
 
-    // Initialize table
+    const brands = [...new Set(
+      data.map(r => r.Brand).filter(b => b && b.length > 0)
+    )].sort();
+
+    // DEBUG: Check if filters will work
+    console.log("✅ Filter counts:", { retailers: retailers.length, provinces: provinces.length, brands: brands.length });
+    if (retailers.length === 0 || provinces.length === 0 || brands.length === 0) {
+      console.warn("⚠️ One or more filter lists are empty. Check your data.json for blank values.");
+    }
+
     table = new Tabulator("#table", {
        data,
       layout: "fitColumns",
       pagination: "local",
       paginationSize: 20,
       movableColumns: true,
-      resizableRows: false,
       width: "100%",
       columnDefaults: {
         headerHozAlign: "center"
@@ -49,27 +58,34 @@ fetch('data/data.json')
           field: "Retailer",
           hozAlign: "center",
           headerFilter: "autocomplete",
-          headerFilterParams: { values: retailers, allowEmpty: true },
-          width: 130,
-          minWidth: 100
+          headerFilterParams: {
+            values: retailers,
+            allowEmpty: true,
+            searchFunc: "contains"
+          },
+          width: 140  // ← Critical: fixed width
         },
         {
           title: "Province",
           field: "Province",
           hozAlign: "center",
-          headerFilter: "select",
-          headerFilterParams: { values: ["", ...provinces] },
-          width: 90,
-          minWidth: 80
+          headerFilter: "select",  // ← Dropdown, not text
+          headerFilterParams: {
+            values: ["", ...provinces]  // include blank option
+          },
+          width: 90
         },
         {
           title: "Brand",
           field: "Brand",
           hozAlign: "center",
           headerFilter: "autocomplete",
-          headerFilterParams: { values: brands, allowEmpty: true },
-          width: 120,
-          minWidth: 100
+          headerFilterParams: {
+            values: brands,
+            allowEmpty: true,
+            searchFunc: "contains"
+          },
+          width: 130
         },
         {
           title: "Name",
@@ -101,7 +117,16 @@ fetch('data/data.json')
           title: "Save %",
           field: "Save %",
           hozAlign: "center",
-          headerFilter: "input"
+          headerFilter: "select",  // ← Dropdown with ranges
+          headerFilterParams: {
+            values: {
+              "": "All",
+              "20": "> 20%",
+              "50": "> 50%",
+              "75": "> 75%"
+            }
+          },
+          width: 100
         },
         {
           title: "PC Pts",
@@ -135,13 +160,33 @@ fetch('data/data.json')
         }
       ]
     });
+
+    // Custom filter logic for Save % dropdown
+    table.on("headerFilterChanged", function(filter) {
+      if (filter.field === "Save %") {
+        const value = filter.value;
+        if (value === "") {
+          table.removeFilter("customSave");
+        } else {
+          const threshold = parseInt(value);
+          table.setFilter("customSave", function(data) {
+            const saveStr = data["Save %"];
+            if (!saveStr) return false;
+            // Extract number from "Save 30%" → 30
+            const match = saveStr.match(/(\d+)%/);
+            const saveNum = match ? parseInt(match[1], 10) : 0;
+            return saveNum >= threshold;
+          });
+        }
+      }
+    });
   })
   .catch(err => {
     console.error("Failed to load ", err);
     document.getElementById("table").innerHTML = "<p style='text-align:center;color:red;'>Error loading deals.</p>";
   });
 
-// ===== FILTER FUNCTIONS =====
+// ===== FILTER BUTTONS =====
 function filterHighPoints() {
   table.setFilter("PC Pts", ">=", 10000);
 }
