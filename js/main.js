@@ -280,54 +280,61 @@ function filterMagicHour() {
   const magicDeals = [];
   const magicPairs = [];
   
-  // Find products with overlapping points + save offers
+  // Find products with 2+ overlapping deals (any combination)
   productMap.forEach((deals, productKey) => {
-    // Separate into points deals and save deals
-    const pointsDeals = deals.filter(d => (d['PC Pts'] || 0) >= 1000);
-    const saveDeals = deals.filter(d => (d.Save_Numeric || 0) >= 10); // Lower threshold for save
+    // Only consider products with significant offers
+    const validDeals = deals.filter(d => 
+      (d['PC Pts'] || 0) >= 1000 || (d.Save_Numeric || 0) >= 10
+    );
     
-    // Check for overlaps between points and save deals
-    pointsDeals.forEach(pDeal => {
-      saveDeals.forEach(sDeal => {
-        // Skip if it's the same deal
-        if (pDeal === sDeal) return;
+    // Need at least 2 deals to have a magic hour
+    if (validDeals.length < 2) return;
+    
+    // Check all pairs of deals for overlaps
+    for (let i = 0; i < validDeals.length; i++) {
+      for (let j = i + 1; j < validDeals.length; j++) {
+        const d1 = validDeals[i];
+        const d2 = validDeals[j];
         
-        // Parse dates
-        const pFrom = new Date(pDeal['Valid From']);
-        const pTo = new Date(pDeal['Valid To']);
-        const sFrom = new Date(sDeal['Valid From']);
-        const sTo = new Date(sDeal['Valid To']);
-        
-        pFrom.setHours(0, 0, 0, 0);
-        pTo.setHours(23, 59, 59, 999);
-        sFrom.setHours(0, 0, 0, 0);
-        sTo.setHours(23, 59, 59, 999);
+        // Parse dates (format: 2026-01-31)
+        const d1From = new Date(d1['Valid From'] + 'T00:00:00');
+        const d1To = new Date(d1['Valid To'] + 'T23:59:59');
+        const d2From = new Date(d2['Valid From'] + 'T00:00:00');
+        const d2To = new Date(d2['Valid To'] + 'T23:59:59');
         
         // Calculate overlap
-        const overlapStart = pFrom > sFrom ? pFrom : sFrom;
-        const overlapEnd = pTo < sTo ? pTo : sTo;
+        const overlapStart = d1From > d2From ? d1From : d2From;
+        const overlapEnd = d1To < d2To ? d1To : d2To;
         
         // Check if there's an overlap and it includes today
         if (overlapStart <= overlapEnd && today >= overlapStart && today <= overlapEnd) {
           const durationDays = Math.ceil((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) + 1;
           
           // Add both deals to magic deals list
-          if (!magicDeals.includes(pDeal)) magicDeals.push(pDeal);
-          if (!magicDeals.includes(sDeal)) magicDeals.push(sDeal);
+          if (!magicDeals.includes(d1)) magicDeals.push(d1);
+          if (!magicDeals.includes(d2)) magicDeals.push(d2);
+          
+          // Determine deal types for logging
+          const d1Info = (d1['PC Pts'] || 0) >= 1000 
+            ? `${d1['PC Pts'].toLocaleString()} pts`
+            : d1['Save %'] || 'offer';
+          const d2Info = (d2['PC Pts'] || 0) >= 1000 
+            ? `${d2['PC Pts'].toLocaleString()} pts`
+            : d2['Save %'] || 'offer';
           
           // Track the magic pair
           magicPairs.push({
-            product: pDeal.Name || 'Unknown',
-            brand: pDeal.Brand || '',
-            points: pDeal['PC Pts'],
-            save: sDeal['Save %'],
+            product: d1.Name || 'Unknown',
+            brand: d1.Brand || '',
+            deal1: d1Info,
+            deal2: d2Info,
             overlapStart: overlapStart.toISOString().split('T')[0],
             overlapEnd: overlapEnd.toISOString().split('T')[0],
             durationDays: durationDays
           });
         }
-      });
-    });
+      }
+    }
   });
   
   if (magicDeals.length > 0) {
@@ -337,11 +344,14 @@ function filterMagicHour() {
     console.log(`✨ Found ${magicPairs.length} Magic Hour opportunities (${magicDeals.length} deals):`);
     magicPairs.forEach((pair, idx) => {
       console.log(`${idx + 1}. ${pair.brand} ${pair.product}`);
-      console.log(`   💰 ${pair.points.toLocaleString()} pts + ${pair.save}`);
+      console.log(`   💰 ${pair.deal1} + ${pair.deal2}`);
       console.log(`   📅 ${pair.overlapStart} to ${pair.overlapEnd} (${pair.durationDays} days)`);
     });
   } else {
-    console.log("No Magic Hour deals found today.");
+    // No magic hours found - clear table and show message
+    table.setData([]);
+    console.log("❌ No Magic Hour deals found. Magic Hours occur when the same product at Shoppers Drug Mart has 2+ overlapping offers that include today.");
+    document.getElementById("table").innerHTML = "<p style='text-align:center;padding:40px;color:#666;'>No Magic Hour deals available today. Check back soon!</p>";
   }
 }
 
