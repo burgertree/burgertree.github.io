@@ -256,52 +256,88 @@ function filterAB() {
 function filterMagicHour() {
   const allData = table.getData();
   const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize to start of day
   
-  // Find overlapping deals with different "types"
-  // We'll define "type" based on having PC Points vs having Save %
-  const magicDeals = [];
+  // Group deals by product (using Name + Brand as identifier)
+  const productMap = new Map();
   
-  for (let i = 0; i < allData.length; i++) {
-    for (let j = i + 1; j < allData.length; j++) {
-      const d1 = allData[i];
-      const d2 = allData[j];
-      
-      // Define deal types
-      const d1HasPoints = (d1['PC Pts'] || 0) >= 1000;
-      const d2HasPoints = (d2['PC Pts'] || 0) >= 1000;
-      const d1HasSave = (d1.Save_Numeric || 0) >= 20;
-      const d2HasSave = (d2.Save_Numeric || 0) >= 20;
-      
-      // Skip if both have same type (both points or both save)
-      const d1Type = d1HasPoints ? 'points' : (d1HasSave ? 'save' : 'none');
-      const d2Type = d2HasPoints ? 'points' : (d2HasSave ? 'save' : 'none');
-      
-      if (d1Type === 'none' || d2Type === 'none' || d1Type === d2Type) {
-        continue;
-      }
-      
-      // Check date overlap
-      const d1From = new Date(d1['Valid From']);
-      const d1To = new Date(d1['Valid To']);
-      const d2From = new Date(d2['Valid From']);
-      const d2To = new Date(d2['Valid To']);
-      
-      const overlapStart = d1From > d2From ? d1From : d2From;
-      const overlapEnd = d1To < d2To ? d1To : d2To;
-      
-      // If there's an overlap and it includes today
-      if (overlapStart < overlapEnd && today >= overlapStart && today <= overlapEnd) {
-        if (!magicDeals.includes(d1)) magicDeals.push(d1);
-        if (!magicDeals.includes(d2)) magicDeals.push(d2);
-      }
+  allData.forEach(deal => {
+    const productKey = `${deal.Brand || ''}|${deal.Name || ''}`.toLowerCase().trim();
+    if (!productKey || productKey === '|') return;
+    
+    if (!productMap.has(productKey)) {
+      productMap.set(productKey, []);
     }
-  }
+    productMap.get(productKey).push(deal);
+  });
+  
+  const magicDeals = [];
+  const magicPairs = [];
+  
+  // Find products with overlapping points + save offers
+  productMap.forEach((deals, productKey) => {
+    // Separate into points deals and save deals
+    const pointsDeals = deals.filter(d => (d['PC Pts'] || 0) >= 1000);
+    const saveDeals = deals.filter(d => (d.Save_Numeric || 0) >= 10); // Lower threshold for save
+    
+    // Check for overlaps between points and save deals
+    pointsDeals.forEach(pDeal => {
+      saveDeals.forEach(sDeal => {
+        // Skip if it's the same deal
+        if (pDeal === sDeal) return;
+        
+        // Parse dates
+        const pFrom = new Date(pDeal['Valid From']);
+        const pTo = new Date(pDeal['Valid To']);
+        const sFrom = new Date(sDeal['Valid From']);
+        const sTo = new Date(sDeal['Valid To']);
+        
+        pFrom.setHours(0, 0, 0, 0);
+        pTo.setHours(23, 59, 59, 999);
+        sFrom.setHours(0, 0, 0, 0);
+        sTo.setHours(23, 59, 59, 999);
+        
+        // Calculate overlap
+        const overlapStart = pFrom > sFrom ? pFrom : sFrom;
+        const overlapEnd = pTo < sTo ? pTo : sTo;
+        
+        // Check if there's an overlap and it includes today
+        if (overlapStart <= overlapEnd && today >= overlapStart && today <= overlapEnd) {
+          const durationDays = Math.ceil((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) + 1;
+          
+          // Add both deals to magic deals list
+          if (!magicDeals.includes(pDeal)) magicDeals.push(pDeal);
+          if (!magicDeals.includes(sDeal)) magicDeals.push(sDeal);
+          
+          // Track the magic pair
+          magicPairs.push({
+            product: pDeal.Name || 'Unknown',
+            brand: pDeal.Brand || '',
+            points: pDeal['PC Pts'],
+            save: sDeal['Save %'],
+            overlapStart: overlapStart.toISOString().split('T')[0],
+            overlapEnd: overlapEnd.toISOString().split('T')[0],
+            durationDays: durationDays
+          });
+        }
+      });
+    });
+  });
   
   if (magicDeals.length > 0) {
     table.setData(magicDeals);
-    console.log(`✨ Found ${magicDeals.length} Magic Hour deals with overlapping periods!`);
+    
+    // Log detailed magic hour info
+    console.log(`✨ Found ${magicPairs.length} Magic Hour opportunities (${magicDeals.length} deals):`);
+    magicPairs.forEach((pair, idx) => {
+      console.log(`${idx + 1}. ${pair.brand} ${pair.product}`);
+      console.log(`   💰 ${pair.points.toLocaleString()} pts + ${pair.save}`);
+      console.log(`   📅 ${pair.overlapStart} to ${pair.overlapEnd} (${pair.durationDays} days)`);
+    });
+    
+    alert(`✨ Found ${magicPairs.length} Magic Hour deals where you can stack PC Points + Save offers! Check console for details.`);
   } else {
-    alert("No Magic Hour deals found with overlapping valid periods today.");
+    alert("No Magic Hour deals found today. Magic Hours occur when the same product has both a PC Points offer AND a Save % offer with overlapping dates.");
   }
 }
 
