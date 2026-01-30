@@ -258,10 +258,16 @@ function filterMagicHour() {
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Normalize to start of day
   
+  // Filter to only Shoppers Drug Mart deals
+  const sdmDeals = allData.filter(deal => {
+    const retailer = (deal.Retailer || '').toLowerCase();
+    return retailer.includes('shoppers') || retailer.includes('drug mart');
+  });
+  
   // Group deals by product (using Name + Brand as identifier)
   const productMap = new Map();
   
-  allData.forEach(deal => {
+  sdmDeals.forEach(deal => {
     const productKey = `${deal.Brand || ''}|${deal.Name || ''}`.toLowerCase().trim();
     if (!productKey || productKey === '|') return;
     
@@ -334,10 +340,8 @@ function filterMagicHour() {
       console.log(`   💰 ${pair.points.toLocaleString()} pts + ${pair.save}`);
       console.log(`   📅 ${pair.overlapStart} to ${pair.overlapEnd} (${pair.durationDays} days)`);
     });
-    
-    alert(`✨ Found ${magicPairs.length} Magic Hour deals where you can stack PC Points + Save offers! Check console for details.`);
   } else {
-    alert("No Magic Hour deals found today. Magic Hours occur when the same product has both a PC Points offer AND a Save % offer with overlapping dates.");
+    console.log("No Magic Hour deals found today.");
   }
 }
 
