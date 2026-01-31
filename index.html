@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SaveSave.ca — Canadian Deals Tracker</title>
   <!-- Tabulator CSS -->
   <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
   <!-- Top Navigation -->
   <nav class="top-nav">
@@ -23,7 +25,7 @@
   <!-- Main Header -->
   <header class="main-header">
     <img src="img/logo.png" alt="SaveSave.ca" class="site-logo">
-    
+
     <!-- Deals Highlights -->
     <div class="deals-highlights">
       <strong>This Week's Top Deals:</strong>
@@ -35,17 +37,77 @@
       </ul>
     </div>
   </header>
-
-  <!-- Filter Buttons -->
+  <!-- Main Content -->
   <div class="container">
+    <!-- Quick Filter Buttons -->
     <div class="filters">
-      <button onclick="filterHighPoints()">Top PC Points (10k+)</button>
-      <button onclick="filterActive()">Active Deals Only</button>
-      <button onclick="filterBC()">Best Deals in BC</button>
-      <button onclick="filterON()">Best Deals in ON</button>
-      <button onclick="filterAB()">Best Deals in AB</button>
-      <button onclick="filterMagicHour()">✨ SDM Magic Hour</button>
-      <button onclick="clearFilters()">Clear All</button>
+      <button onclick="filterActive()">Active Deals</button>
+      <button onclick="filterHighPoints()">High Points (10k+)</button>
+      <button onclick="filterBC()">BC Deals</button>
+      <button onclick="filterON()">ON Deals</button>
+      <button onclick="filterAB()">AB Deals</button>
+      <button onclick="filterMagicHour()" style="background: #FFD700; color: #E60012;">✨ Magic Hour</button>
+      <button onclick="clearFilters()">Clear Filters</button>
+    </div>
+
+    <!-- Custom Filters Panel -->
+    <div class="custom-filters">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="filter-province">Province:</label>
+          <select id="filter-province">
+            <option value="All">All</option>
+            <option value="BC">BC</option>
+            <option value="AB">AB</option>
+            <option value="MB">MB</option>
+            <option value="SK">SK</option>
+            <option value="ON">ON</option>
+            <option value="NS">NS</option>
+            <option value="NB">NB</option>
+            <option value="PE">PE</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-retailer">Retailer:</label>
+          <select id="filter-retailer">
+            <option value="All">All</option>
+            <option value="Shoppers Drug Mart">Shoppers Drug Mart</option>
+            <option value="Loblaws">Loblaws</option>
+            <option value="Real Canadian Superstore">Superstore</option>
+            <option value="No Frills">No Frills</option>
+            <option value="Atlantic Superstore">Atlantic Superstore</option>
+            <option value="Walmart">Walmart</option>
+            <option value="Safeway">Safeway</option>
+            <option value="Save-On-Foods">Save-On-Foods</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-brand">Brand:</label>
+          <input type="text" id="filter-brand" placeholder="Search brand...">
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-save">Save %:</label>
+          <select id="filter-save">
+            <option value="All">All</option>
+            <option value="90">90% or more</option>
+            <option value="50">50% or more</option>
+            <option value="20">20% or more</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-points">PC Pts:</label>
+          <select id="filter-points">
+            <option value="All">All</option>
+            <option value="100-999">100-999</option>
+            <option value="1000-9999">1,000-9,999</option>
+            <option value="10000+">10,000 or more</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <!-- Table -->
@@ -56,11 +118,14 @@
 
   <footer>
     <p><strong>SaveSave.ca</strong> — Weekly Canadian retail deals tracker.</p>
-    <p>Data updated regularly. Not affiliated with PC Optimum, No Frills, Real Canadian Superstore, Real Atlantic Superstore, Loblaw Companies Limited, Shoppers Drug Mart, Walmart, Save-on-Foods, or any retailers displayed in this website.</p>
+    <p>Data updated regularly. Not affiliated with PC Optimum, No Frills, Real Canadian Superstore, Real Atlantic
+      Superstore, Loblaw Companies Limited, Shoppers Drug Mart, Walmart, Save-on-Foods, or any retailers displayed in
+      this website.</p>
   </footer>
 
   <!-- Scripts -->
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
   <script src="js/main.js" defer></script>
 </body>
+
 </html>

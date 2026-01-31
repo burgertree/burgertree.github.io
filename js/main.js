@@ -13,6 +13,7 @@ function parseSavePercent(str) {
 }
 
 let table;
+let allDeals = []; // Store original data
 
 fetch('data/data.json')
   .then(response => response.json())
@@ -30,6 +31,9 @@ fetch('data/data.json')
       'Save %': (row['Save %'] || '').toString().trim(),
       'Save_Numeric': parseSavePercent(row['Save %'])  // Add numeric field for sorting/filtering
     }));
+
+    // Store original data
+    allDeals = data;
 
     // Extract UNIQUE, NON-EMPTY values
     const provinces = [...new Set(
@@ -57,41 +61,23 @@ fetch('data/data.json')
       paginationSize: 20,
       movableColumns: true,
       width: "100%",
-      columnDefaults: {
-        headerHozAlign: "center"
-      },
       columns: [
         {
           title: "Retailer",
           field: "Retailer",
           hozAlign: "center",
-          headerFilter: "list",
-          headerFilterParams: {
-            values: ["", ...retailers],
-            clearable: true
-          },
           width: 140
         },
         {
           title: "Province",
           field: "Province",
           hozAlign: "center",
-          headerFilter: "list",
-          headerFilterParams: {
-            values: ["", ...provinces],
-            clearable: true
-          },
           width: 90
         },
         {
           title: "Brand",
           field: "Brand",
           hozAlign: "center",
-          headerFilter: "list",
-          headerFilterParams: {
-            values: ["", ...brands],
-            clearable: true
-          },
           width: 130
         },
         {
@@ -99,7 +85,6 @@ fetch('data/data.json')
           field: "Name",
           hozAlign: "left",
           headerHozAlign: "left",
-          headerFilter: "input",
           formatter: "plaintext",
           minWidth: 200,
           widthGrow: 2
@@ -134,16 +119,6 @@ fetch('data/data.json')
             const aNum = aRow.getData().Save_Numeric;
             const bNum = bRow.getData().Save_Numeric;
             return aNum - bNum;
-          },
-          headerFilter: "list",
-          headerFilterParams: {
-            values: {
-              "": "All",
-              "20": "≥ 20%",
-              "50": "≥ 50%",
-              "75": "≥ 75%"
-            },
-            clearable: true
           },
           width: 100
         },
@@ -180,86 +155,134 @@ fetch('data/data.json')
       ]
     });
 
-    // Custom filter logic for Save % dropdown - filter by NUMERIC value
-    table.on("headerFilterChanged", function(filter) {
-      if (filter.field === "Save %") {
-        const value = filter.value;
-        if (value === "") {
-          table.removeFilter("customSave");
-        } else {
-          const threshold = parseInt(value);
-          table.setFilter("customSave", function(data) {
-            return data.Save_Numeric >= threshold;
-          });
-        }
-      }
-    });
+    // Setup custom filter event listeners
+    setupCustomFilters();
   })
   .catch(err => {
     console.error("Failed to load ", err);
     document.getElementById("table").innerHTML = "<p style='text-align:center;color:red;'>Error loading deals.</p>";
   });
 
+// Setup custom filter controls
+function setupCustomFilters() {
+  document.getElementById('filter-province').addEventListener('change', applyCustomFilters);
+  document.getElementById('filter-retailer').addEventListener('change', applyCustomFilters);
+  document.getElementById('filter-brand').addEventListener('input', applyCustomFilters);
+  document.getElementById('filter-save').addEventListener('change', applyCustomFilters);
+  document.getElementById('filter-points').addEventListener('change', applyCustomFilters);
+}
+
+// Apply all custom filters
+function applyCustomFilters() {
+  const province = document.getElementById('filter-province').value;
+  const retailer = document.getElementById('filter-retailer').value;
+  const brand = document.getElementById('filter-brand').value.toLowerCase().trim();
+  const save = document.getElementById('filter-save').value;
+  const points = document.getElementById('filter-points').value;
+
+  let filteredData = [...allDeals];
+
+  // Province filter
+  if (province && province !== 'All') {
+    filteredData = filteredData.filter(d => d.Province === province);
+  }
+
+  // Retailer filter
+  if (retailer && retailer !== 'All') {
+    filteredData = filteredData.filter(d => d.Retailer === retailer);
+  }
+
+  // Brand filter (text search)
+  if (brand) {
+    filteredData = filteredData.filter(d => 
+      (d.Brand || '').toLowerCase().includes(brand)
+    );
+  }
+
+  // Save % filter
+  if (save && save !== 'All') {
+    const threshold = parseInt(save);
+    filteredData = filteredData.filter(d => d.Save_Numeric >= threshold);
+  }
+
+  // PC Points filter
+  if (points && points !== 'All') {
+    if (points === '100-999') {
+      filteredData = filteredData.filter(d => d['PC Pts'] >= 100 && d['PC Pts'] < 1000);
+    } else if (points === '1000-9999') {
+      filteredData = filteredData.filter(d => d['PC Pts'] >= 1000 && d['PC Pts'] < 10000);
+    } else if (points === '10000+') {
+      filteredData = filteredData.filter(d => d['PC Pts'] >= 10000);
+    }
+  }
+
+  table.setData(filteredData);
+}
+
 // ===== FILTER BUTTONS =====
 function filterHighPoints() {
-  table.setFilter("PC Pts", ">=", 10000);
+  document.getElementById('filter-points').value = '10000+';
+  applyCustomFilters();
 }
 
 function filterActive() {
   const today = new Date().toISOString().split('T')[0];
-  table.setFilter([
-    { field: "Valid From", type: "<=", value: today },
-    { field: "Valid To", type: ">=", value: today },
-    { field: "has_Expired", type: "=", value: "FALSE" }
-  ]);
+  let filteredData = allDeals.filter(d => {
+    return d['Valid From'] <= today && 
+           d['Valid To'] >= today && 
+           d['has_Expired'] === 'FALSE';
+  });
+  table.setData(filteredData);
 }
 
 function filterBC() {
+  document.getElementById('filter-province').value = 'BC';
+  document.getElementById('filter-points').value = '1000-9999';
+  applyCustomFilters();
+  
+  // Additional filter for active deals
   const today = new Date().toISOString().split('T')[0];
-  table.setFilter([
-    { field: "Province", type: "=", value: "BC" },
-    { field: "Valid From", type: "<=", value: today },
-    { field: "Valid To", type: ">=", value: today },
-    [
-      { field: "PC Pts", type: ">=", value: 1000 },
-      { field: "Save %", type: "!=", value: "" }
-    ]
-  ]);
+  const currentData = table.getData();
+  const activeData = currentData.filter(d => 
+    d['Valid From'] <= today && d['Valid To'] >= today
+  );
+  table.setData(activeData);
 }
 
 function filterON() {
+  document.getElementById('filter-province').value = 'ON';
+  document.getElementById('filter-points').value = '1000-9999';
+  applyCustomFilters();
+  
+  // Additional filter for active deals
   const today = new Date().toISOString().split('T')[0];
-  table.setFilter([
-    { field: "Province", type: "=", value: "ON" },
-    { field: "Valid From", type: "<=", value: today },
-    { field: "Valid To", type: ">=", value: today },
-    [
-      { field: "PC Pts", type: ">=", value: 1000 },
-      { field: "Save %", type: "!=", value: "" }
-    ]
-  ]);
+  const currentData = table.getData();
+  const activeData = currentData.filter(d => 
+    d['Valid From'] <= today && d['Valid To'] >= today
+  );
+  table.setData(activeData);
 }
 
 function filterAB() {
+  document.getElementById('filter-province').value = 'AB';
+  document.getElementById('filter-points').value = '1000-9999';
+  applyCustomFilters();
+  
+  // Additional filter for active deals
   const today = new Date().toISOString().split('T')[0];
-  table.setFilter([
-    { field: "Province", type: "=", value: "AB" },
-    { field: "Valid From", type: "<=", value: today },
-    { field: "Valid To", type: ">=", value: today },
-    [
-      { field: "PC Pts", type: ">=", value: 1000 },
-      { field: "Save %", type: "!=", value: "" }
-    ]
-  ]);
+  const currentData = table.getData();
+  const activeData = currentData.filter(d => 
+    d['Valid From'] <= today && d['Valid To'] >= today
+  );
+  table.setData(activeData);
 }
 
 function filterMagicHour() {
-  const allData = table.getData();
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Normalize to start of day
   
   // Filter to only Shoppers Drug Mart deals
-  const sdmDeals = allData.filter(deal => {
+  const sdmDeals = allDeals.filter(deal => {
     const retailer = (deal.Retailer || '').toLowerCase();
     return retailer.includes('shoppers') || retailer.includes('drug mart');
   });
@@ -356,23 +379,13 @@ function filterMagicHour() {
 }
 
 function clearFilters() {
-  table.clearFilter();
-  // Reset to original data
-  fetch('data/data.json')
-    .then(response => response.json())
-    .then(rawData => {
-      const data = rawData.map(row => ({
-        ...row,
-        'PC Pts': parsePoints(row['PC Pts']),
-        'Price': parseFloat(row['Price']) || null,
-        'Province': (row['Province'] || '').toString().trim(),
-        'Retailer': (row['Retailer'] || '').toString().trim(),
-        'Brand': (row['Brand'] || '').toString().trim(),
-        'Name': (row['Name'] || '').toString().trim(),
-        'Description': (row['Description'] || '').toString().trim(),
-        'Save %': (row['Save %'] || '').toString().trim(),
-        'Save_Numeric': parseSavePercent(row['Save %'])
-      }));
-      table.setData(data);
-    });
+  // Reset all filter dropdowns
+  document.getElementById('filter-province').value = 'All';
+  document.getElementById('filter-retailer').value = 'All';
+  document.getElementById('filter-brand').value = '';
+  document.getElementById('filter-save').value = 'All';
+  document.getElementById('filter-points').value = 'All';
+  
+  // Reset table to all data
+  table.setData(allDeals);
 }

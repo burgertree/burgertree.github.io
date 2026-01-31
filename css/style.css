@@ -48,7 +48,7 @@ body {
 }
 
 .site-logo {
-  width: 140px; /* Smaller logo */
+  width: 140px;
   margin: 0 auto 20px;
   display: block;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
@@ -74,13 +74,14 @@ body {
   margin-bottom: 6px;
 }
 
-/* =============== Filters & Table =============== */
+/* =============== Container =============== */
 .container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 20px 40px;
 }
 
+/* =============== Quick Filter Buttons =============== */
 .filters {
   text-align: center;
   margin: 20px 0;
@@ -99,12 +100,62 @@ body {
   cursor: pointer;
   font-weight: 500;
   white-space: nowrap;
+  transition: background 0.2s;
 }
 
 .filters button:hover {
   background: #b3000f;
 }
 
+/* =============== Custom Filters Panel =============== */
+.custom-filters {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  margin: 20px 0;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #555;
+}
+
+.filter-group select,
+.filter-group input[type="text"] {
+  padding: 8px 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.filter-group select:focus,
+.filter-group input[type="text"]:focus {
+  outline: none;
+  border-color: #E60012;
+}
+
+.filter-group input[type="text"]::placeholder {
+  color: #999;
+}
+
+/* =============== Table =============== */
 .table-container {
   overflow-x: auto;
   width: 100%;
@@ -117,37 +168,20 @@ body {
   min-width: 900px;
 }
 
-/* =============== Tabulator Header Filters =============== */
-/* Ensure header filters are visible and properly sized */
+/* Remove header filters since we have custom filters now */
 .tabulator .tabulator-header .tabulator-col .tabulator-header-filter {
-  display: block !important;
-  margin-top: 4px;
-}
-
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter input,
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter select {
-  width: 100% !important;
-  box-sizing: border-box;
-  padding: 4px 6px;
-  font-size: 12px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  display: none !important;
 }
 
 /* Allow header wrapping */
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
   white-space: normal !important;
   line-height: 1.3;
-  padding: 4px;
+  padding: 8px 4px;
 }
 
 .tabulator .tabulator-header .tabulator-col .tabulator-col-title {
   word-break: break-word;
-}
-
-/* Make header taller to accommodate filters */
-.tabulator .tabulator-header .tabulator-col {
-  min-height: 60px;
 }
 
 /* =============== Footer =============== */
@@ -162,17 +196,24 @@ footer {
 
 /* =============== Mobile =============== */
 @media (max-width: 768px) {
-  .site-logo { width: 120px; }
-  .filters { gap: 6px; }
+  .site-logo { 
+    width: 120px; 
+  }
+  
+  .filters { 
+    gap: 6px; 
+  }
+  
   .filters button { 
     padding: 6px 10px; 
     font-size: 14px;
   }
   
-  /* Adjust header filters on mobile */
-  .tabulator .tabulator-header .tabulator-col .tabulator-header-filter input,
-  .tabulator .tabulator-header .tabulator-col .tabulator-header-filter select {
-    font-size: 11px;
-    padding: 3px 4px;
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .custom-filters {
+    padding: 15px;
   }
 }
