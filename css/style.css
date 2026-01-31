@@ -118,14 +118,6 @@ body {
   background: #e6c200;
 }
 
-.filters .clear-btn {
-  background: #666;
-}
-
-.filters .clear-btn:hover {
-  background: #444;
-}
-
 /* =============== Custom Filters Panel =============== */
 .custom-filters {
   background: #fff;
@@ -144,6 +136,36 @@ body {
 
 .filter-section:last-child {
   border-bottom: none;
+}
+
+.clear-section {
+  justify-content: center;
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 2px solid #e0e0e0;
+  border-bottom: none;
+}
+
+.clear-filter-btn {
+  padding: 10px 24px;
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.clear-filter-btn:hover {
+  background: #444;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.clear-filter-btn:active {
+  transform: translateY(1px);
 }
 
 .filter-label {

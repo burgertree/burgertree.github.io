@@ -37,6 +37,8 @@
       </ul>
     </div>
   </header>
+
+
   <!-- Main Content -->
   <div class="container">
     <!-- Quick Filter Buttons -->
@@ -46,9 +48,9 @@
       <button onclick="filterBC()">BC Deals</button>
       <button onclick="filterON()">ON Deals</button>
       <button onclick="filterAB()">AB Deals</button>
-      <button onclick="filterMagicHour()" style="background: #FFD700; color: #E60012;">✨ Magic Hour</button>
-      <button onclick="clearFilters()">Clear Filters</button>
+      <button onclick="filterMagicHour()" class="magic-hour-btn">✨ Magic Hour</button>
     </div>
+
     <!-- Custom Filters Panel -->
     <div class="custom-filters">
       <!-- Province Filter -->
@@ -72,13 +74,13 @@
         <label class="filter-label">Retailer:</label>
         <div class="filter-options">
           <button class="filter-btn active" data-filter="retailer" data-value="All">All</button>
-          <button class="filter-btn" data-filter="retailer" data-value="Shoppers Drug Mart">SDM</button>
-          <button class="filter-btn" data-filter="retailer" data-value="Real Canadian Superstore">RCSS</button>
+          <button class="filter-btn" data-filter="retailer" data-value="Shoppers Drug Mart">Shoppers Drug Mart</button>
+          <button class="filter-btn" data-filter="retailer" data-value="Real Canadian Superstore">Superstore</button>
           <button class="filter-btn" data-filter="retailer" data-value="NoFrills">NoFrills</button>
-          <button class="filter-btn" data-filter="retailer" data-value="Atlantic Superstore">Atlantic</button>
+          <button class="filter-btn" data-filter="retailer" data-value="Atlantic Superstore">Atlantic Superstore</button>
           <button class="filter-btn" data-filter="retailer" data-value="Walmart">Walmart</button>
           <button class="filter-btn" data-filter="retailer" data-value="Safeway">Safeway</button>
-          <button class="filter-btn" data-filter="retailer" data-value="Save-On-Foods">Save-On</button>
+          <button class="filter-btn" data-filter="retailer" data-value="Save-On-Foods">Save-On-Foods</button>
         </div>
       </div>
 
@@ -110,6 +112,11 @@
           <button class="filter-btn" data-filter="points" data-value="1000-9999">1,000-9,999</button>
           <button class="filter-btn" data-filter="points" data-value="10000+">10,000+</button>
         </div>
+      </div>
+
+      <!-- Clear Filter Button -->
+      <div class="filter-section clear-section">
+        <button onclick="clearFilters()" class="clear-filter-btn">🔄 Clear All Filters</button>
       </div>
     </div>
 
