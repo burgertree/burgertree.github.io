@@ -14,6 +14,13 @@ function parseSavePercent(str) {
 
 let table;
 let allDeals = []; // Store original data
+let activeFilters = {
+  province: 'All',
+  retailer: 'All',
+  brand: '',
+  save: 'All',
+  points: 'All'
+};
 
 fetch('data/data.json')
   .then(response => response.json())
@@ -29,7 +36,7 @@ fetch('data/data.json')
       'Name': (row['Name'] || '').toString().trim(),
       'Description': (row['Description'] || '').toString().trim(),
       'Save %': (row['Save %'] || '').toString().trim(),
-      'Save_Numeric': parseSavePercent(row['Save %'])  // Add numeric field for sorting/filtering
+      'Save_Numeric': parseSavePercent(row['Save %'])
     }));
 
     // Store original data
@@ -48,11 +55,7 @@ fetch('data/data.json')
       data.map(r => r.Brand).filter(b => b && b.length > 0)
     )].sort();
 
-    // DEBUG: Check if filters will work
     console.log("✅ Filter counts:", { retailers: retailers.length, provinces: provinces.length, brands: brands.length });
-    if (retailers.length === 0 || provinces.length === 0 || brands.length === 0) {
-      console.warn("⚠️ One or more filter lists are empty. Check your data.json for blank values.");
-    }
 
     table = new Tabulator("#table", {
       data,
@@ -115,7 +118,6 @@ fetch('data/data.json')
           field: "Save %",
           hozAlign: "center",
           sorter: function(a, b, aRow, bRow) {
-            // Sort by numeric value, not string
             const aNum = aRow.getData().Save_Numeric;
             const bNum = bRow.getData().Save_Numeric;
             return aNum - bNum;
@@ -155,63 +157,75 @@ fetch('data/data.json')
       ]
     });
 
-    // Setup custom filter event listeners
-    setupCustomFilters();
+    // Setup filter button listeners
+    setupFilterButtons();
   })
   .catch(err => {
     console.error("Failed to load ", err);
     document.getElementById("table").innerHTML = "<p style='text-align:center;color:red;'>Error loading deals.</p>";
   });
 
-// Setup custom filter controls
-function setupCustomFilters() {
-  document.getElementById('filter-province').addEventListener('change', applyCustomFilters);
-  document.getElementById('filter-retailer').addEventListener('change', applyCustomFilters);
-  document.getElementById('filter-brand').addEventListener('input', applyCustomFilters);
-  document.getElementById('filter-save').addEventListener('change', applyCustomFilters);
-  document.getElementById('filter-points').addEventListener('change', applyCustomFilters);
+// Setup filter button event listeners
+function setupFilterButtons() {
+  // Handle all filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const filterType = this.dataset.filter;
+      const filterValue = this.dataset.value;
+      
+      // Update active state
+      this.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Update active filters
+      activeFilters[filterType] = filterValue;
+      
+      // Apply filters
+      applyFilters();
+    });
+  });
+  
+  // Handle brand text input
+  document.getElementById('filter-brand').addEventListener('input', function() {
+    activeFilters.brand = this.value.toLowerCase().trim();
+    applyFilters();
+  });
 }
 
-// Apply all custom filters
-function applyCustomFilters() {
-  const province = document.getElementById('filter-province').value;
-  const retailer = document.getElementById('filter-retailer').value;
-  const brand = document.getElementById('filter-brand').value.toLowerCase().trim();
-  const save = document.getElementById('filter-save').value;
-  const points = document.getElementById('filter-points').value;
-
+// Apply all active filters
+function applyFilters() {
   let filteredData = [...allDeals];
 
   // Province filter
-  if (province && province !== 'All') {
-    filteredData = filteredData.filter(d => d.Province === province);
+  if (activeFilters.province !== 'All') {
+    filteredData = filteredData.filter(d => d.Province === activeFilters.province);
   }
 
   // Retailer filter
-  if (retailer && retailer !== 'All') {
-    filteredData = filteredData.filter(d => d.Retailer === retailer);
+  if (activeFilters.retailer !== 'All') {
+    filteredData = filteredData.filter(d => d.Retailer === activeFilters.retailer);
   }
 
-  // Brand filter (text search)
-  if (brand) {
+  // Brand filter
+  if (activeFilters.brand) {
     filteredData = filteredData.filter(d => 
-      (d.Brand || '').toLowerCase().includes(brand)
+      (d.Brand || '').toLowerCase().includes(activeFilters.brand)
     );
   }
 
   // Save % filter
-  if (save && save !== 'All') {
-    const threshold = parseInt(save);
+  if (activeFilters.save !== 'All') {
+    const threshold = parseInt(activeFilters.save);
     filteredData = filteredData.filter(d => d.Save_Numeric >= threshold);
   }
 
   // PC Points filter
-  if (points && points !== 'All') {
-    if (points === '100-999') {
+  if (activeFilters.points !== 'All') {
+    if (activeFilters.points === '100-999') {
       filteredData = filteredData.filter(d => d['PC Pts'] >= 100 && d['PC Pts'] < 1000);
-    } else if (points === '1000-9999') {
+    } else if (activeFilters.points === '1000-9999') {
       filteredData = filteredData.filter(d => d['PC Pts'] >= 1000 && d['PC Pts'] < 10000);
-    } else if (points === '10000+') {
+    } else if (activeFilters.points === '10000+') {
       filteredData = filteredData.filter(d => d['PC Pts'] >= 10000);
     }
   }
@@ -219,10 +233,21 @@ function applyCustomFilters() {
   table.setData(filteredData);
 }
 
+// Set active button for a filter group
+function setActiveFilter(filterType, value) {
+  document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.value === value) {
+      btn.classList.add('active');
+    }
+  });
+  activeFilters[filterType] = value;
+}
+
 // ===== FILTER BUTTONS =====
 function filterHighPoints() {
-  document.getElementById('filter-points').value = '10000+';
-  applyCustomFilters();
+  setActiveFilter('points', '10000+');
+  applyFilters();
 }
 
 function filterActive() {
@@ -236,9 +261,9 @@ function filterActive() {
 }
 
 function filterBC() {
-  document.getElementById('filter-province').value = 'BC';
-  document.getElementById('filter-points').value = '1000-9999';
-  applyCustomFilters();
+  setActiveFilter('province', 'BC');
+  setActiveFilter('points', '1000-9999');
+  applyFilters();
   
   // Additional filter for active deals
   const today = new Date().toISOString().split('T')[0];
@@ -250,11 +275,10 @@ function filterBC() {
 }
 
 function filterON() {
-  document.getElementById('filter-province').value = 'ON';
-  document.getElementById('filter-points').value = '1000-9999';
-  applyCustomFilters();
+  setActiveFilter('province', 'ON');
+  setActiveFilter('points', '1000-9999');
+  applyFilters();
   
-  // Additional filter for active deals
   const today = new Date().toISOString().split('T')[0];
   const currentData = table.getData();
   const activeData = currentData.filter(d => 
@@ -264,11 +288,10 @@ function filterON() {
 }
 
 function filterAB() {
-  document.getElementById('filter-province').value = 'AB';
-  document.getElementById('filter-points').value = '1000-9999';
-  applyCustomFilters();
+  setActiveFilter('province', 'AB');
+  setActiveFilter('points', '1000-9999');
+  applyFilters();
   
-  // Additional filter for active deals
   const today = new Date().toISOString().split('T')[0];
   const currentData = table.getData();
   const activeData = currentData.filter(d => 
@@ -279,7 +302,7 @@ function filterAB() {
 
 function filterMagicHour() {
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalize to start of day
+  today.setHours(0, 0, 0, 0);
   
   // Filter to only Shoppers Drug Mart deals
   const sdmDeals = allDeals.filter(deal => {
@@ -287,7 +310,7 @@ function filterMagicHour() {
     return retailer.includes('shoppers') || retailer.includes('drug mart');
   });
   
-  // Group deals by product (using Name + Brand as identifier)
+  // Group deals by product
   const productMap = new Map();
   
   sdmDeals.forEach(deal => {
@@ -303,14 +326,12 @@ function filterMagicHour() {
   const magicDeals = [];
   const magicPairs = [];
   
-  // Find products with 2+ overlapping deals (any combination)
+  // Find products with 2+ overlapping deals
   productMap.forEach((deals, productKey) => {
-    // Only consider products with significant offers
     const validDeals = deals.filter(d => 
       (d['PC Pts'] || 0) >= 1000 || (d.Save_Numeric || 0) >= 10
     );
     
-    // Need at least 2 deals to have a magic hour
     if (validDeals.length < 2) return;
     
     // Check all pairs of deals for overlaps
@@ -319,25 +340,20 @@ function filterMagicHour() {
         const d1 = validDeals[i];
         const d2 = validDeals[j];
         
-        // Parse dates (format: 2026-01-31)
         const d1From = new Date(d1['Valid From'] + 'T00:00:00');
         const d1To = new Date(d1['Valid To'] + 'T23:59:59');
         const d2From = new Date(d2['Valid From'] + 'T00:00:00');
         const d2To = new Date(d2['Valid To'] + 'T23:59:59');
         
-        // Calculate overlap
         const overlapStart = d1From > d2From ? d1From : d2From;
         const overlapEnd = d1To < d2To ? d1To : d2To;
         
-        // Check if there's an overlap and it includes today
         if (overlapStart <= overlapEnd && today >= overlapStart && today <= overlapEnd) {
           const durationDays = Math.ceil((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) + 1;
           
-          // Add both deals to magic deals list
           if (!magicDeals.includes(d1)) magicDeals.push(d1);
           if (!magicDeals.includes(d2)) magicDeals.push(d2);
           
-          // Determine deal types for logging
           const d1Info = (d1['PC Pts'] || 0) >= 1000 
             ? `${d1['PC Pts'].toLocaleString()} pts`
             : d1['Save %'] || 'offer';
@@ -345,7 +361,6 @@ function filterMagicHour() {
             ? `${d2['PC Pts'].toLocaleString()} pts`
             : d2['Save %'] || 'offer';
           
-          // Track the magic pair
           magicPairs.push({
             product: d1.Name || 'Unknown',
             brand: d1.Brand || '',
@@ -363,7 +378,6 @@ function filterMagicHour() {
   if (magicDeals.length > 0) {
     table.setData(magicDeals);
     
-    // Log detailed magic hour info
     console.log(`✨ Found ${magicPairs.length} Magic Hour opportunities (${magicDeals.length} deals):`);
     magicPairs.forEach((pair, idx) => {
       console.log(`${idx + 1}. ${pair.brand} ${pair.product}`);
@@ -371,20 +385,22 @@ function filterMagicHour() {
       console.log(`   📅 ${pair.overlapStart} to ${pair.overlapEnd} (${pair.durationDays} days)`);
     });
   } else {
-    // No magic hours found - clear table and show message
     table.setData([]);
-    console.log("❌ No Magic Hour deals found. Magic Hours occur when the same product at Shoppers Drug Mart has 2+ overlapping offers that include today.");
+    console.log("❌ No Magic Hour deals found.");
     document.getElementById("table").innerHTML = "<p style='text-align:center;padding:40px;color:#666;'>No Magic Hour deals available today. Check back soon!</p>";
   }
 }
 
 function clearFilters() {
-  // Reset all filter dropdowns
-  document.getElementById('filter-province').value = 'All';
-  document.getElementById('filter-retailer').value = 'All';
+  // Reset all filter buttons to "All"
+  setActiveFilter('province', 'All');
+  setActiveFilter('retailer', 'All');
+  setActiveFilter('save', 'All');
+  setActiveFilter('points', 'All');
+  
+  // Clear brand input
   document.getElementById('filter-brand').value = '';
-  document.getElementById('filter-save').value = 'All';
-  document.getElementById('filter-points').value = 'All';
+  activeFilters.brand = '';
   
   // Reset table to all data
   table.setData(allDeals);

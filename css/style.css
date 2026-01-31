@@ -12,7 +12,7 @@ body {
 
 /* =============== Top Nav =============== */
 .top-nav {
-  background-color: #FFD700; /* Yellow */
+  background-color: #FFD700;
   padding: 10px 0;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
@@ -28,7 +28,7 @@ body {
 }
 
 .top-nav a {
-  color: #E60012; /* Red */
+  color: #E60012;
   text-decoration: none;
   font-weight: 600;
   font-size: 16px;
@@ -92,7 +92,7 @@ body {
 }
 
 .filters button {
-  padding: 8px 12px;
+  padding: 10px 16px;
   background: #E60012;
   color: white;
   border: none;
@@ -101,10 +101,29 @@ body {
   font-weight: 500;
   white-space: nowrap;
   transition: background 0.2s;
+  font-size: 14px;
 }
 
 .filters button:hover {
   background: #b3000f;
+}
+
+.filters .magic-hour-btn {
+  background: #FFD700;
+  color: #E60012;
+  font-weight: 600;
+}
+
+.filters .magic-hour-btn:hover {
+  background: #e6c200;
+}
+
+.filters .clear-btn {
+  background: #666;
+}
+
+.filters .clear-btn:hover {
+  background: #444;
 }
 
 /* =============== Custom Filters Panel =============== */
@@ -116,42 +135,72 @@ body {
   margin: 20px 0;
 }
 
-.filter-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 15px;
-  align-items: end;
-}
-
-.filter-group {
+.filter-section {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
 }
 
-.filter-group label {
+.filter-section:last-child {
+  border-bottom: none;
+}
+
+.filter-label {
   font-weight: 600;
   font-size: 14px;
-  color: #555;
+  color: #333;
+  min-width: 100px;
+  flex-shrink: 0;
 }
 
-.filter-group select,
-.filter-group input[type="text"] {
-  padding: 8px 10px;
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+}
+
+.filter-btn {
+  padding: 6px 14px;
+  background: #f5f5f5;
+  color: #333;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.filter-btn:hover {
+  background: #e8e8e8;
+  border-color: #ccc;
+}
+
+.filter-btn.active {
+  background: #E60012;
+  color: white;
+  border-color: #E60012;
+}
+
+.brand-input {
+  flex: 1;
+  max-width: 300px;
+  padding: 8px 12px;
   border: 2px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
-  background: white;
   transition: border-color 0.2s;
 }
 
-.filter-group select:focus,
-.filter-group input[type="text"]:focus {
+.brand-input:focus {
   outline: none;
   border-color: #E60012;
 }
 
-.filter-group input[type="text"]::placeholder {
+.brand-input::placeholder {
   color: #999;
 }
 
@@ -168,7 +217,7 @@ body {
   min-width: 900px;
 }
 
-/* Remove header filters since we have custom filters now */
+/* Remove header filters */
 .tabulator .tabulator-header .tabulator-col .tabulator-header-filter {
   display: none !important;
 }
@@ -205,12 +254,26 @@ footer {
   }
   
   .filters button { 
-    padding: 6px 10px; 
-    font-size: 14px;
+    padding: 8px 12px; 
+    font-size: 13px;
   }
   
-  .filter-row {
-    grid-template-columns: 1fr;
+  .filter-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .filter-label {
+    min-width: auto;
+  }
+  
+  .filter-options {
+    width: 100%;
+  }
+  
+  .brand-input {
+    max-width: 100%;
   }
   
   .custom-filters {

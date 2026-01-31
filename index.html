@@ -49,63 +49,66 @@
       <button onclick="filterMagicHour()" style="background: #FFD700; color: #E60012;">✨ Magic Hour</button>
       <button onclick="clearFilters()">Clear Filters</button>
     </div>
-
     <!-- Custom Filters Panel -->
     <div class="custom-filters">
-      <div class="filter-row">
-        <div class="filter-group">
-          <label for="filter-province">Province:</label>
-          <select id="filter-province">
-            <option value="All">All</option>
-            <option value="BC">BC</option>
-            <option value="AB">AB</option>
-            <option value="MB">MB</option>
-            <option value="SK">SK</option>
-            <option value="ON">ON</option>
-            <option value="NS">NS</option>
-            <option value="NB">NB</option>
-            <option value="PE">PE</option>
-          </select>
+      <!-- Province Filter -->
+      <div class="filter-section">
+        <label class="filter-label">Province:</label>
+        <div class="filter-options">
+          <button class="filter-btn active" data-filter="province" data-value="All">All</button>
+          <button class="filter-btn" data-filter="province" data-value="BC">BC</button>
+          <button class="filter-btn" data-filter="province" data-value="AB">AB</button>
+          <button class="filter-btn" data-filter="province" data-value="MB">MB</button>
+          <button class="filter-btn" data-filter="province" data-value="SK">SK</button>
+          <button class="filter-btn" data-filter="province" data-value="ON">ON</button>
+          <button class="filter-btn" data-filter="province" data-value="NS">NS</button>
+          <button class="filter-btn" data-filter="province" data-value="NB">NB</button>
+          <button class="filter-btn" data-filter="province" data-value="PE">PE</button>
         </div>
+      </div>
 
-        <div class="filter-group">
-          <label for="filter-retailer">Retailer:</label>
-          <select id="filter-retailer">
-            <option value="All">All</option>
-            <option value="Shoppers Drug Mart">Shoppers Drug Mart</option>
-            <option value="Loblaws">Loblaws</option>
-            <option value="Real Canadian Superstore">Superstore</option>
-            <option value="No Frills">No Frills</option>
-            <option value="Atlantic Superstore">Atlantic Superstore</option>
-            <option value="Walmart">Walmart</option>
-            <option value="Safeway">Safeway</option>
-            <option value="Save-On-Foods">Save-On-Foods</option>
-          </select>
+      <!-- Retailer Filter -->
+      <div class="filter-section">
+        <label class="filter-label">Retailer:</label>
+        <div class="filter-options">
+          <button class="filter-btn active" data-filter="retailer" data-value="All">All</button>
+          <button class="filter-btn" data-filter="retailer" data-value="Shoppers Drug Mart">Shoppers</button>
+          <button class="filter-btn" data-filter="retailer" data-value="Real Canadian Superstore">Superstore</button>
+          <button class="filter-btn" data-filter="retailer" data-value="NoFrills">NoFrills</button>
+          <button class="filter-btn" data-filter="retailer" data-value="Atlantic Superstore">Atlantic</button>
+          <button class="filter-btn" data-filter="retailer" data-value="Walmart">Walmart</button>
+          <button class="filter-btn" data-filter="retailer" data-value="Safeway">Safeway</button>
+          <button class="filter-btn" data-filter="retailer" data-value="Save-On-Foods">Save-On</button>
         </div>
+      </div>
 
-        <div class="filter-group">
-          <label for="filter-brand">Brand:</label>
-          <input type="text" id="filter-brand" placeholder="Search brand...">
+      <!-- Brand Filter -->
+      <div class="filter-section">
+        <label class="filter-label">Brand:</label>
+        <div class="filter-options">
+          <input type="text" id="filter-brand" class="brand-input" placeholder="Search brand...">
         </div>
+      </div>
 
-        <div class="filter-group">
-          <label for="filter-save">Save %:</label>
-          <select id="filter-save">
-            <option value="All">All</option>
-            <option value="90">90% or more</option>
-            <option value="50">50% or more</option>
-            <option value="20">20% or more</option>
-          </select>
+      <!-- Save % Filter -->
+      <div class="filter-section">
+        <label class="filter-label">Save %:</label>
+        <div class="filter-options">
+          <button class="filter-btn active" data-filter="save" data-value="All">All</button>
+          <button class="filter-btn" data-filter="save" data-value="90">90% or more</button>
+          <button class="filter-btn" data-filter="save" data-value="50">50% or more</button>
+          <button class="filter-btn" data-filter="save" data-value="20">20% or more</button>
         </div>
+      </div>
 
-        <div class="filter-group">
-          <label for="filter-points">PC Pts:</label>
-          <select id="filter-points">
-            <option value="All">All</option>
-            <option value="100-999">100-999</option>
-            <option value="1000-9999">1,000-9,999</option>
-            <option value="10000+">10,000 or more</option>
-          </select>
+      <!-- PC Points Filter -->
+      <div class="filter-section">
+        <label class="filter-label">PC Pts:</label>
+        <div class="filter-options">
+          <button class="filter-btn active" data-filter="points" data-value="All">All</button>
+          <button class="filter-btn" data-filter="points" data-value="100-999">100-999</button>
+          <button class="filter-btn" data-filter="points" data-value="1000-9999">1,000-9,999</button>
+          <button class="filter-btn" data-filter="points" data-value="10000+">10,000+</button>
         </div>
       </div>
     </div>
