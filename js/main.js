@@ -15,8 +15,8 @@ function parseSavePercent(str) {
 let table;
 let allDeals = []; // Store original data
 let activeFilters = {
-  province: 'All',
-  retailer: 'All',
+  province: ['All'],
+  retailer: ['All'],
   brand: '',
   save: 'All',
   points: 'All'
@@ -173,12 +173,51 @@ function setupFilterButtons() {
       const filterType = this.dataset.filter;
       const filterValue = this.dataset.value;
       
-      // Update active state
-      this.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      
-      // Update active filters
-      activeFilters[filterType] = filterValue;
+      // Handle province and retailer with multiple selection
+      if (filterType === 'province' || filterType === 'retailer') {
+        if (filterValue === 'All') {
+          // Select "All" - deselect everything else
+          this.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          activeFilters[filterType] = ['All'];
+        } else {
+          // Deselect "All" if it was selected
+          const allBtn = this.parentElement.querySelector('[data-value="All"]');
+          if (allBtn) allBtn.classList.remove('active');
+          
+          // Toggle this button
+          if (this.classList.contains('active')) {
+            // Deselect
+            this.classList.remove('active');
+            const index = activeFilters[filterType].indexOf(filterValue);
+            if (index > -1) {
+              activeFilters[filterType].splice(index, 1);
+            }
+            
+            // If nothing selected, revert to "All"
+            if (activeFilters[filterType].length === 0 || 
+                (activeFilters[filterType].length === 1 && activeFilters[filterType][0] === 'All')) {
+              if (allBtn) allBtn.classList.add('active');
+              activeFilters[filterType] = ['All'];
+            }
+          } else {
+            // Select
+            this.classList.add('active');
+            if (activeFilters[filterType].includes('All')) {
+              activeFilters[filterType] = [filterValue];
+            } else {
+              if (!activeFilters[filterType].includes(filterValue)) {
+                activeFilters[filterType].push(filterValue);
+              }
+            }
+          }
+        }
+      } else {
+        // Single selection for other filters (save, points)
+        this.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        activeFilters[filterType] = filterValue;
+      }
       
       // Apply filters
       applyFilters();
@@ -196,14 +235,14 @@ function setupFilterButtons() {
 function applyFilters() {
   let filteredData = [...allDeals];
 
-  // Province filter
-  if (activeFilters.province !== 'All') {
-    filteredData = filteredData.filter(d => d.Province === activeFilters.province);
+  // Province filter (multiple selection)
+  if (!activeFilters.province.includes('All')) {
+    filteredData = filteredData.filter(d => activeFilters.province.includes(d.Province));
   }
 
-  // Retailer filter
-  if (activeFilters.retailer !== 'All') {
-    filteredData = filteredData.filter(d => d.Retailer === activeFilters.retailer);
+  // Retailer filter (multiple selection)
+  if (!activeFilters.retailer.includes('All')) {
+    filteredData = filteredData.filter(d => activeFilters.retailer.includes(d.Retailer));
   }
 
   // Brand filter
@@ -235,13 +274,25 @@ function applyFilters() {
 
 // Set active button for a filter group
 function setActiveFilter(filterType, value) {
-  document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(btn => {
-    btn.classList.remove('active');
-    if (btn.dataset.value === value) {
-      btn.classList.add('active');
-    }
-  });
-  activeFilters[filterType] = value;
+  if (filterType === 'province' || filterType === 'retailer') {
+    // Multiple selection filters - reset to single value
+    document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.value === value) {
+        btn.classList.add('active');
+      }
+    });
+    activeFilters[filterType] = [value];
+  } else {
+    // Single selection filters
+    document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.value === value) {
+        btn.classList.add('active');
+      }
+    });
+    activeFilters[filterType] = value;
+  }
 }
 
 // ===== FILTER BUTTONS =====
