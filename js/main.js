@@ -70,7 +70,8 @@ let activeFilters = {
   retailer: ['All'],
   brand: '',
   save: 'All',
-  points: 'All'
+  points: 'All',
+  magicHour: false
 };
 
 fetch('data/data.json')
@@ -162,7 +163,8 @@ fetch('data/data.json')
       movableColumns: true,
       resizableColumns: true,
       virtualDomBuffer: 300,
-      height: "calc(100vh - 300px)", // Further increased height (was 350px)
+      height: "calc(100vh - 200px)", // Increased height (was 350px/300px)
+      placeholder: "No deals found matching your criteria", // Added placeholder
       columns: [
         {
           title: "Retailer",
@@ -366,6 +368,50 @@ function setupFilterButtons() {
 function applyFilters() {
   let filteredData = [...allDeals];
 
+  // Magic Hour Filter (Shoppers overlap)
+  if (activeFilters.magicHour) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const sdmDeals = filteredData.filter(deal => {
+      const retailer = (deal.Retailer || '').toLowerCase();
+      return retailer.includes('shoppers') || retailer.includes('drug mart');
+    });
+
+    const productMap = new Map();
+    sdmDeals.forEach(deal => {
+      const productKey = `${deal.Brand || ''}|${deal.Name || ''}`.toLowerCase().trim();
+      if (!productKey || productKey === '|') return;
+      if (!productMap.has(productKey)) productMap.set(productKey, []);
+      productMap.get(productKey).push(deal);
+    });
+
+    const magicDeals = [];
+    productMap.forEach((deals) => {
+      const validDeals = deals.filter(d => (d['PC Pts'] || 0) >= 1000 || (d.Save_Numeric || 0) >= 10);
+      if (validDeals.length < 2) return;
+
+      for (let i = 0; i < validDeals.length; i++) {
+        for (let j = i + 1; j < validDeals.length; j++) {
+          const d1 = validDeals[i];
+          const d2 = validDeals[j];
+          const d1From = new Date(d1['Valid From'] + 'T00:00:00');
+          const d1To = new Date(d1['Valid To'] + 'T23:59:59');
+          const d2From = new Date(d2['Valid From'] + 'T00:00:00');
+          const d2To = new Date(d2['Valid To'] + 'T23:59:59');
+          const overlapStart = d1From > d2From ? d1From : d2From;
+          const overlapEnd = d1To < d2To ? d1To : d2To;
+
+          if (overlapStart <= overlapEnd && today >= overlapStart && today <= overlapEnd) {
+            if (!magicDeals.includes(d1)) magicDeals.push(d1);
+            if (!magicDeals.includes(d2)) magicDeals.push(d2);
+          }
+        }
+      }
+    });
+    filteredData = magicDeals;
+  }
+
   // Province filter (multiple selection)
   if (!activeFilters.province.includes('All')) {
     filteredData = filteredData.filter(d => activeFilters.province.includes(d.Province));
@@ -428,21 +474,24 @@ function setActiveFilter(filterType, value) {
 
 // ===== FILTER BUTTONS =====
 function filterHighPoints() {
+  activeFilters.magicHour = false;
   setActiveFilter('points', '10000+');
   applyFilters();
 }
 
 function filterActive() {
+  activeFilters.magicHour = false;
   const today = new Date().toISOString().split('T')[0];
   let filteredData = allDeals.filter(d => {
     return d['Valid From'] <= today &&
       d['Valid To'] >= today &&
-      d['has_Expired'] === 'FALSE';
+      (d['has_Expired'] === 'FALSE' || d['has_Expired'] === undefined);
   });
   table.setData(filteredData);
 }
 
 function filterBC() {
+  activeFilters.magicHour = false;
   setActiveFilter('province', 'BC');
   setActiveFilter('points', '1000-9999');
   applyFilters();
@@ -457,6 +506,7 @@ function filterBC() {
 }
 
 function filterON() {
+  activeFilters.magicHour = false;
   setActiveFilter('province', 'ON');
   setActiveFilter('points', '1000-9999');
   applyFilters();
@@ -470,6 +520,7 @@ function filterON() {
 }
 
 function filterAB() {
+  activeFilters.magicHour = false;
   setActiveFilter('province', 'AB');
   setActiveFilter('points', '1000-9999');
   applyFilters();
@@ -483,109 +534,44 @@ function filterAB() {
 }
 
 function filterMagicHour() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // Filter to only Shoppers Drug Mart deals from allDeals (not current table data)
-  const sdmDeals = allDeals.filter(deal => {
-    const retailer = (deal.Retailer || '').toLowerCase();
-    return retailer.includes('shoppers') || retailer.includes('drug mart');
-  });
-
-  // Group deals by product
-  const productMap = new Map();
-
-  sdmDeals.forEach(deal => {
-    const productKey = `${deal.Brand || ''}|${deal.Name || ''}`.toLowerCase().trim();
-    if (!productKey || productKey === '|') return;
-
-    if (!productMap.has(productKey)) {
-      productMap.set(productKey, []);
-    }
-    productMap.get(productKey).push(deal);
-  });
-
-  const magicDeals = [];
-  const magicPairs = [];
-
-  // Find products with 2+ overlapping deals
-  productMap.forEach((deals, productKey) => {
-    const validDeals = deals.filter(d =>
-      (d['PC Pts'] || 0) >= 1000 || (d.Save_Numeric || 0) >= 10
-    );
-
-    if (validDeals.length < 2) return;
-
-    // Check all pairs of deals for overlaps
-    for (let i = 0; i < validDeals.length; i++) {
-      for (let j = i + 1; j < validDeals.length; j++) {
-        const d1 = validDeals[i];
-        const d2 = validDeals[j];
-
-        const d1From = new Date(d1['Valid From'] + 'T00:00:00');
-        const d1To = new Date(d1['Valid To'] + 'T23:59:59');
-        const d2From = new Date(d2['Valid From'] + 'T00:00:00');
-        const d2To = new Date(d2['Valid To'] + 'T23:59:59');
-
-        const overlapStart = d1From > d2From ? d1From : d2From;
-        const overlapEnd = d1To < d2To ? d1To : d2To;
-
-        if (overlapStart <= overlapEnd && today >= overlapStart && today <= overlapEnd) {
-          const durationDays = Math.ceil((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) + 1;
-
-          if (!magicDeals.includes(d1)) magicDeals.push(d1);
-          if (!magicDeals.includes(d2)) magicDeals.push(d2);
-
-          const d1Info = (d1['PC Pts'] || 0) >= 1000
-            ? `${d1['PC Pts'].toLocaleString()} pts`
-            : d1['Save %'] || 'offer';
-          const d2Info = (d2['PC Pts'] || 0) >= 1000
-            ? `${d2['PC Pts'].toLocaleString()} pts`
-            : d2['Save %'] || 'offer';
-
-          magicPairs.push({
-            product: d1.Name || 'Unknown',
-            brand: d1.Brand || '',
-            deal1: d1Info,
-            deal2: d2Info,
-            overlapStart: overlapStart.toISOString().split('T')[0],
-            overlapEnd: overlapEnd.toISOString().split('T')[0],
-            durationDays: durationDays
-          });
-        }
-      }
-    }
-  });
-
-  if (magicDeals.length > 0) {
-    table.setData(magicDeals);
-
-    console.log(`✨ Found ${magicPairs.length} Magic Hour opportunities (${magicDeals.length} deals):`);
-    magicPairs.forEach((pair, idx) => {
-      console.log(`${idx + 1}. ${pair.brand} ${pair.product}`);
-      console.log(`   💰 ${pair.deal1} + ${pair.deal2}`);
-      console.log(`   📅 ${pair.overlapStart} to ${pair.overlapEnd} (${pair.durationDays} days)`);
-    });
-  } else {
-    table.setData([]);
-    console.log("❌ No Magic Hour deals found.");
-    const tableContainer = document.getElementById("table");
-    if (tableContainer) {
-      tableContainer.innerHTML = "<p style='text-align:center;padding:40px;color:#666;'>No Magic Hour deals available today. Check back soon!</p>";
+  activeFilters.magicHour = !activeFilters.magicHour;
+  const btn = document.querySelector('.magic-hour-btn');
+  if (btn) {
+    if (activeFilters.magicHour) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
     }
   }
+  applyFilters();
 }
 
 function clearFilters() {
-  // Reset all filter buttons to "All"
-  setActiveFilter('province', 'All');
-  setActiveFilter('retailer', 'All');
-  setActiveFilter('save', 'All');
-  setActiveFilter('points', 'All');
+  // Reset activeFilters object
+  activeFilters = {
+    province: ['All'],
+    retailer: ['All'],
+    brand: '',
+    save: 'All',
+    points: 'All',
+    magicHour: false
+  };
+
+  // Reset all filter buttons UI
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.value === 'All') {
+      btn.classList.add('active');
+    }
+  });
+
+  // Reset Magic Hour button UI
+  const magicBtn = document.querySelector('.magic-hour-btn');
+  if (magicBtn) magicBtn.classList.remove('active');
 
   // Clear brand input
-  document.getElementById('filter-brand').value = '';
-  activeFilters.brand = '';
+  const brandInput = document.getElementById('filter-brand');
+  if (brandInput) brandInput.value = '';
 
   // Reset table to all data
   table.setData(allDeals);
