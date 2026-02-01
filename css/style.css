@@ -233,10 +233,21 @@ body {
   margin: 20px 0;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: white;
 }
 
 #table {
   min-width: 900px;
+}
+
+/* Frozen header styling */
+.tabulator .tabulator-header {
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #ddd;
+}
+
+.tabulator .tabulator-header .tabulator-col {
+  background-color: #f5f5f5;
 }
 
 /* Remove header filters */

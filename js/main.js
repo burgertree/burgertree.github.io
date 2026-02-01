@@ -58,25 +58,37 @@ let activeFilters = {
 fetch('data/data.json')
   .then(response => response.json())
   .then(rawData => {
+    // Debug: Log the first row to see actual column names
+    if (rawData.length > 0) {
+      console.log("📋 First row keys:", Object.keys(rawData[0]));
+      console.log("📋 Sample row:", rawData[0]);
+    }
+    
     // Clean data + add numeric Save % field and expiry
-    const data = rawData.map(row => ({
-      ...row,
-      'PC Pts': parsePoints(row['PC Pts']),
-      'Price': parseFloat(row['Price']) || null,
-      'Province': (row['Province'] || '').toString().trim(),
-      'Retailer': (row['Retailer'] || '').toString().trim(),
-      'Brand': (row['Brand'] || '').toString().trim(),
-      'Name': (row['Name'] || '').toString().trim(),
-      'Offer': (row['Offer'] || '').toString().trim(),
-      'Details': (row['Details'] || '').toString().trim(),
-      'Terms': (row['Terms'] || '').toString().trim(),
-      'Item Web URL': (row['Item Web URL'] || '').toString().trim(),
-      'Valid From': (row['Valid From'] || '').toString().trim(),
-      'Valid To': (row['Valid To'] || '').toString().trim(),
-      'Save %': (row['Save %'] || '').toString().trim(),
-      'Save_Numeric': parseSavePercent(row['Save %']),
-      'Expiry': calculateExpiry(row['Valid To'])
-    }));
+    const data = rawData.map(row => {
+      // Try different possible column names for Valid To
+      const validTo = row['Valid To'] || row['Valid_To'] || row['ValidTo'] || row['valid_to'] || '';
+      const validFrom = row['Valid From'] || row['Valid_From'] || row['ValidFrom'] || row['valid_from'] || '';
+      
+      return {
+        ...row,
+        'PC Pts': parsePoints(row['PC Pts']),
+        'Price': parseFloat(row['Price']) || null,
+        'Province': (row['Province'] || '').toString().trim(),
+        'Retailer': (row['Retailer'] || '').toString().trim(),
+        'Brand': (row['Brand'] || '').toString().trim(),
+        'Name': (row['Name'] || '').toString().trim(),
+        'Offer': (row['Offer'] || '').toString().trim(),
+        'Details': (row['Details'] || '').toString().trim(),
+        'Terms': (row['Terms'] || '').toString().trim(),
+        'Item Web URL': (row['Item Web URL'] || row['Item_Web_URL'] || '').toString().trim(),
+        'Valid From': validFrom.toString().trim(),
+        'Valid To': validTo.toString().trim(),
+        'Save %': (row['Save %'] || '').toString().trim(),
+        'Save_Numeric': parseSavePercent(row['Save %']),
+        'Expiry': calculateExpiry(validTo)
+      };
+    });
 
     // Store original data
     allDeals = data;
@@ -93,6 +105,7 @@ fetch('data/data.json')
       movableColumns: true,
       resizableColumns: true,
       width: "100%",
+      height: "600px",  // Set fixed height to enable frozen headers
       columns: [
         {
           title: "Retailer",
