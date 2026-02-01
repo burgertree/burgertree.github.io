@@ -49,9 +49,10 @@ fetch('data/data.json')
       'Retailer': (row['Retailer'] || '').toString().trim(),
       'Brand': (row['Brand'] || '').toString().trim(),
       'Name': (row['Name'] || '').toString().trim(),
-      'Description': (row['Description'] || '').toString().trim(),
+      'Offer': (row['Offer'] || '').toString().trim(),
+      'Details': (row['Details'] || '').toString().trim(),
+      'Terms': (row['Terms'] || '').toString().trim(),
       'Save %': (row['Save %'] || '').toString().trim(),
-      'Sale_story': (row['Sale_story'] || '').toString().trim(),
       'Save_Numeric': parseSavePercent(row['Save %']),
       'Expiry': calculateExpiry(row['Valid To'])
     }));
@@ -67,7 +68,7 @@ fetch('data/data.json')
       pagination: "local",
       paginationSize: 20,
       movableColumns: true,
-      resizableColumns: true,  // Enable column resizing
+      resizableColumns: true,
       width: "100%",
       columns: [
         {
@@ -101,16 +102,6 @@ fetch('data/data.json')
           formatter: "plaintext",
           widthGrow: 3,
           minWidth: 200,
-          resizable: true
-        },
-        {
-          title: "Description",
-          field: "Description",
-          hozAlign: "left",
-          headerHozAlign: "left",
-          formatter: "plaintext",
-          widthGrow: 2,
-          minWidth: 150,
           resizable: true
         },
         {
@@ -153,8 +144,28 @@ fetch('data/data.json')
           resizable: true
         },
         {
-          title: "Sale Story",
-          field: "Sale_story",
+          title: "Offer",
+          field: "Offer",
+          hozAlign: "left",
+          headerHozAlign: "left",
+          formatter: "plaintext",
+          widthGrow: 2,
+          minWidth: 150,
+          resizable: true
+        },
+        {
+          title: "Details",
+          field: "Details",
+          hozAlign: "left",
+          headerHozAlign: "left",
+          formatter: "plaintext",
+          widthGrow: 2,
+          minWidth: 150,
+          resizable: true
+        },
+        {
+          title: "Terms",
+          field: "Terms",
           hozAlign: "left",
           headerHozAlign: "left",
           formatter: "plaintext",
@@ -170,14 +181,14 @@ fetch('data/data.json')
           resizable: true
         },
         {
-          title: "Details",
+          title: "URL",
           field: "Item Web URL",
           hozAlign: "center",
           formatter: function(cell) {
             const url = cell.getValue();
             return url ? `<a href="${url}" target="_blank" rel="noopener">View</a>` : "";
           },
-          width: 80,
+          width: 70,
           resizable: true
         }
       ]
