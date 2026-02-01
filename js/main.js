@@ -14,17 +14,35 @@ function parseSavePercent(str) {
 
 // Helper: Calculate days until expiry
 function calculateExpiry(validTo) {
-  if (!validTo) return null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const expiryDate = new Date(validTo + 'T23:59:59');
-  const diffTime = expiryDate - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (!validTo || validTo === '') {
+    console.warn('Missing Valid To date');
+    return 'N/A';
+  }
   
-  if (diffDays < 0) return 'Expired';
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return '1 day';
-  return `${diffDays} days`;
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Parse date in YYYY-MM-DD format
+    const expiryDate = new Date(validTo + 'T23:59:59');
+    
+    // Check if date is valid
+    if (isNaN(expiryDate.getTime())) {
+      console.warn('Invalid date format:', validTo);
+      return 'Invalid';
+    }
+    
+    const diffTime = expiryDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return 'Expired';
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1 day';
+    return `${diffDays} days`;
+  } catch (error) {
+    console.error('Error calculating expiry:', error, 'for date:', validTo);
+    return 'Error';
+  }
 }
 
 let table;
@@ -52,6 +70,9 @@ fetch('data/data.json')
       'Offer': (row['Offer'] || '').toString().trim(),
       'Details': (row['Details'] || '').toString().trim(),
       'Terms': (row['Terms'] || '').toString().trim(),
+      'Item Web URL': (row['Item Web URL'] || '').toString().trim(),
+      'Valid From': (row['Valid From'] || '').toString().trim(),
+      'Valid To': (row['Valid To'] || '').toString().trim(),
       'Save %': (row['Save %'] || '').toString().trim(),
       'Save_Numeric': parseSavePercent(row['Save %']),
       'Expiry': calculateExpiry(row['Valid To'])
@@ -61,6 +82,8 @@ fetch('data/data.json')
     allDeals = data;
 
     console.log("✅ Data loaded:", allDeals.length, "deals");
+    console.log("📅 Sample Valid To:", data[0]?.['Valid To']);
+    console.log("⏰ Sample Expiry:", data[0]?.['Expiry']);
 
     table = new Tabulator("#table", {
       data,
