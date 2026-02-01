@@ -16,38 +16,47 @@ function parseSavePercent(str) {
 function calculateExpiry(validToValue) {
   // Convert to string and trim
   const validTo = String(validToValue || '').trim();
-  
+
   if (!validTo || validTo === '' || validTo === 'undefined' || validTo === 'null') {
     return 'N/A';
   }
-  
+
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
-    // Try parsing the date - handle YYYY-MM-DD format
+
+    // Try parsing the date
     let expiryDate;
-    
-    // If it's already in YYYY-MM-DD format
+
+    // Handle YYYY-MM-DD format
     if (/^\d{4}-\d{2}-\d{2}$/.test(validTo)) {
       expiryDate = new Date(validTo + 'T00:00:00');
-    } else {
+    }
+    // Handle YYYY年M月D日 format (e.g., 2026年2月25日)
+    else if (/(\d{4})年(\d{1,2})月(\d{1,2})日/.test(validTo)) {
+      const match = validTo.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+      const year = parseInt(match[1]);
+      const month = parseInt(match[2]) - 1; // 0-indexed months
+      const day = parseInt(match[3]);
+      expiryDate = new Date(year, month, day);
+    }
+    else {
       expiryDate = new Date(validTo);
     }
-    
+
     // Check if date is valid
     if (isNaN(expiryDate.getTime())) {
       console.warn('Invalid date:', validTo);
       return validTo; // Return original value so user can see what's wrong
     }
-    
+
     const diffTime = expiryDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) return 'Expired';
     if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return '1 day';
-    return `${diffDays} days`;
+    if (diffDays === 1) return 'In 1 day';
+    return `In ${diffDays} days`;
   } catch (error) {
     console.error('Error calculating expiry:', error, 'for date:', validTo);
     return validToValue; // Return original so we can see it
@@ -72,20 +81,20 @@ fetch('data/data.json')
       console.log("=== DEBUG INFO ===");
       console.log("📋 All column names:", Object.keys(rawData[0]));
       console.log("📋 First complete row:", rawData[0]);
-      
+
       // Try to find date columns
-      const dateColumns = Object.keys(rawData[0]).filter(key => 
-        key.toLowerCase().includes('valid') || 
+      const dateColumns = Object.keys(rawData[0]).filter(key =>
+        key.toLowerCase().includes('valid') ||
         key.toLowerCase().includes('date') ||
         key.toLowerCase().includes('expir')
       );
       console.log("📅 Possible date columns:", dateColumns);
-      
+
       dateColumns.forEach(col => {
         console.log(`   ${col}:`, rawData[0][col]);
       });
     }
-    
+
     // Clean data + add numeric Save % field and expiry
     const data = rawData.map((row, index) => {
       // Try to find the Valid To column with various possible names
@@ -94,7 +103,7 @@ fetch('data/data.json')
         'Valid To', 'Valid_To', 'ValidTo', 'valid_to', 'valid to',
         'Validité jusqu\'au', 'End Date', 'end_date', 'Expiry', 'expiry'
       ];
-      
+
       for (let name of possibleNames) {
         if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
           validTo = row[name];
@@ -102,24 +111,24 @@ fetch('data/data.json')
           break;
         }
       }
-      
+
       // Same for Valid From
       let validFrom = '';
       const possibleFromNames = [
-        'Valid From', 'Valid_From', 'ValidFrom', 'valid_from', 'valid from',
+        'Valid From', 'Valid_From', 'ValidFrom', 'valid_from', 'valid_from',
         'Start Date', 'start_date'
       ];
-      
+
       for (let name of possibleFromNames) {
         if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
           validFrom = row[name];
           break;
         }
       }
-      
+
       const expiry = calculateExpiry(validTo);
       if (index === 0) console.log(`⏰ Calculated expiry: "${expiry}"`);
-      
+
       return {
         ...row,
         'PC Pts': parsePoints(row['PC Pts']),
@@ -153,7 +162,7 @@ fetch('data/data.json')
       movableColumns: true,
       resizableColumns: true,
       virtualDomBuffer: 300,
-      height: "calc(100vh - 500px)", // Dynamic height based on viewport
+      height: "calc(100vh - 300px)", // Further increased height (was 350px)
       columns: [
         {
           title: "Retailer",
@@ -194,9 +203,9 @@ fetch('data/data.json')
           field: "Price",
           hozAlign: "center",
           formatter: "money",
-          formatterParams: { 
-            decimal: ".", 
-            thousand: ",", 
+          formatterParams: {
+            decimal: ".",
+            thousand: ",",
             symbol: "$",
             precision: 2
           },
@@ -207,7 +216,7 @@ fetch('data/data.json')
           title: "Save %",
           field: "Save %",
           hozAlign: "center",
-          sorter: function(a, b, aRow, bRow) {
+          sorter: function (a, b, aRow, bRow) {
             const aNum = aRow.getData().Save_Numeric;
             const bNum = bRow.getData().Save_Numeric;
             return aNum - bNum;
@@ -220,7 +229,7 @@ fetch('data/data.json')
           field: "PC Pts",
           hozAlign: "center",
           sorter: "number",
-          formatter: function(cell) {
+          formatter: function (cell) {
             const val = cell.getValue();
             if (val === null || val === undefined || val === 0) return "";
             return val.toLocaleString('en-CA', { maximumFractionDigits: 0 });
@@ -269,7 +278,7 @@ fetch('data/data.json')
           title: "URL",
           field: "Item Web URL",
           hozAlign: "center",
-          formatter: function(cell) {
+          formatter: function (cell) {
             const url = cell.getValue();
             return url ? `<a href="${url}" target="_blank" rel="noopener">View</a>` : "";
           },
@@ -291,10 +300,10 @@ fetch('data/data.json')
 function setupFilterButtons() {
   // Handle all filter buttons
   document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
       const filterType = this.dataset.filter;
       const filterValue = this.dataset.value;
-      
+
       // Handle province and retailer with multiple selection
       if (filterType === 'province' || filterType === 'retailer') {
         if (filterValue === 'All') {
@@ -306,7 +315,7 @@ function setupFilterButtons() {
           // Deselect "All" if it was selected
           const allBtn = this.parentElement.querySelector('[data-value="All"]');
           if (allBtn) allBtn.classList.remove('active');
-          
+
           // Toggle this button
           if (this.classList.contains('active')) {
             // Deselect
@@ -315,10 +324,10 @@ function setupFilterButtons() {
             if (index > -1) {
               activeFilters[filterType].splice(index, 1);
             }
-            
+
             // If nothing selected, revert to "All"
-            if (activeFilters[filterType].length === 0 || 
-                (activeFilters[filterType].length === 1 && activeFilters[filterType][0] === 'All')) {
+            if (activeFilters[filterType].length === 0 ||
+              (activeFilters[filterType].length === 1 && activeFilters[filterType][0] === 'All')) {
               if (allBtn) allBtn.classList.add('active');
               activeFilters[filterType] = ['All'];
             }
@@ -340,14 +349,14 @@ function setupFilterButtons() {
         this.classList.add('active');
         activeFilters[filterType] = filterValue;
       }
-      
+
       // Apply filters
       applyFilters();
     });
   });
-  
+
   // Handle brand text input
-  document.getElementById('filter-brand').addEventListener('input', function() {
+  document.getElementById('filter-brand').addEventListener('input', function () {
     activeFilters.brand = this.value.toLowerCase().trim();
     applyFilters();
   });
@@ -369,7 +378,7 @@ function applyFilters() {
 
   // Brand filter
   if (activeFilters.brand) {
-    filteredData = filteredData.filter(d => 
+    filteredData = filteredData.filter(d =>
       (d.Brand || '').toLowerCase().includes(activeFilters.brand)
     );
   }
@@ -426,9 +435,9 @@ function filterHighPoints() {
 function filterActive() {
   const today = new Date().toISOString().split('T')[0];
   let filteredData = allDeals.filter(d => {
-    return d['Valid From'] <= today && 
-           d['Valid To'] >= today && 
-           d['has_Expired'] === 'FALSE';
+    return d['Valid From'] <= today &&
+      d['Valid To'] >= today &&
+      d['has_Expired'] === 'FALSE';
   });
   table.setData(filteredData);
 }
@@ -437,11 +446,11 @@ function filterBC() {
   setActiveFilter('province', 'BC');
   setActiveFilter('points', '1000-9999');
   applyFilters();
-  
+
   // Additional filter for active deals
   const today = new Date().toISOString().split('T')[0];
   const currentData = table.getData();
-  const activeData = currentData.filter(d => 
+  const activeData = currentData.filter(d =>
     d['Valid From'] <= today && d['Valid To'] >= today
   );
   table.setData(activeData);
@@ -451,10 +460,10 @@ function filterON() {
   setActiveFilter('province', 'ON');
   setActiveFilter('points', '1000-9999');
   applyFilters();
-  
+
   const today = new Date().toISOString().split('T')[0];
   const currentData = table.getData();
-  const activeData = currentData.filter(d => 
+  const activeData = currentData.filter(d =>
     d['Valid From'] <= today && d['Valid To'] >= today
   );
   table.setData(activeData);
@@ -464,10 +473,10 @@ function filterAB() {
   setActiveFilter('province', 'AB');
   setActiveFilter('points', '1000-9999');
   applyFilters();
-  
+
   const today = new Date().toISOString().split('T')[0];
   const currentData = table.getData();
-  const activeData = currentData.filter(d => 
+  const activeData = currentData.filter(d =>
     d['Valid From'] <= today && d['Valid To'] >= today
   );
   table.setData(activeData);
@@ -476,64 +485,64 @@ function filterAB() {
 function filterMagicHour() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   // Filter to only Shoppers Drug Mart deals from allDeals (not current table data)
   const sdmDeals = allDeals.filter(deal => {
     const retailer = (deal.Retailer || '').toLowerCase();
     return retailer.includes('shoppers') || retailer.includes('drug mart');
   });
-  
+
   // Group deals by product
   const productMap = new Map();
-  
+
   sdmDeals.forEach(deal => {
     const productKey = `${deal.Brand || ''}|${deal.Name || ''}`.toLowerCase().trim();
     if (!productKey || productKey === '|') return;
-    
+
     if (!productMap.has(productKey)) {
       productMap.set(productKey, []);
     }
     productMap.get(productKey).push(deal);
   });
-  
+
   const magicDeals = [];
   const magicPairs = [];
-  
+
   // Find products with 2+ overlapping deals
   productMap.forEach((deals, productKey) => {
-    const validDeals = deals.filter(d => 
+    const validDeals = deals.filter(d =>
       (d['PC Pts'] || 0) >= 1000 || (d.Save_Numeric || 0) >= 10
     );
-    
+
     if (validDeals.length < 2) return;
-    
+
     // Check all pairs of deals for overlaps
     for (let i = 0; i < validDeals.length; i++) {
       for (let j = i + 1; j < validDeals.length; j++) {
         const d1 = validDeals[i];
         const d2 = validDeals[j];
-        
+
         const d1From = new Date(d1['Valid From'] + 'T00:00:00');
         const d1To = new Date(d1['Valid To'] + 'T23:59:59');
         const d2From = new Date(d2['Valid From'] + 'T00:00:00');
         const d2To = new Date(d2['Valid To'] + 'T23:59:59');
-        
+
         const overlapStart = d1From > d2From ? d1From : d2From;
         const overlapEnd = d1To < d2To ? d1To : d2To;
-        
+
         if (overlapStart <= overlapEnd && today >= overlapStart && today <= overlapEnd) {
           const durationDays = Math.ceil((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) + 1;
-          
+
           if (!magicDeals.includes(d1)) magicDeals.push(d1);
           if (!magicDeals.includes(d2)) magicDeals.push(d2);
-          
-          const d1Info = (d1['PC Pts'] || 0) >= 1000 
+
+          const d1Info = (d1['PC Pts'] || 0) >= 1000
             ? `${d1['PC Pts'].toLocaleString()} pts`
             : d1['Save %'] || 'offer';
-          const d2Info = (d2['PC Pts'] || 0) >= 1000 
+          const d2Info = (d2['PC Pts'] || 0) >= 1000
             ? `${d2['PC Pts'].toLocaleString()} pts`
             : d2['Save %'] || 'offer';
-          
+
           magicPairs.push({
             product: d1.Name || 'Unknown',
             brand: d1.Brand || '',
@@ -547,10 +556,10 @@ function filterMagicHour() {
       }
     }
   });
-  
+
   if (magicDeals.length > 0) {
     table.setData(magicDeals);
-    
+
     console.log(`✨ Found ${magicPairs.length} Magic Hour opportunities (${magicDeals.length} deals):`);
     magicPairs.forEach((pair, idx) => {
       console.log(`${idx + 1}. ${pair.brand} ${pair.product}`);
@@ -573,11 +582,11 @@ function clearFilters() {
   setActiveFilter('retailer', 'All');
   setActiveFilter('save', 'All');
   setActiveFilter('points', 'All');
-  
+
   // Clear brand input
   document.getElementById('filter-brand').value = '';
   activeFilters.brand = '';
-  
+
   // Reset table to all data
   table.setData(allDeals);
 }
