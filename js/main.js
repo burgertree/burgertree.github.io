@@ -13,9 +13,11 @@ function parseSavePercent(str) {
 }
 
 // Helper: Calculate days until expiry
-function calculateExpiry(validTo) {
-  if (!validTo || validTo === '') {
-    console.warn('Missing Valid To date');
+function calculateExpiry(validToValue) {
+  // Convert to string and trim
+  const validTo = String(validToValue || '').trim();
+  
+  if (!validTo || validTo === '' || validTo === 'undefined' || validTo === 'null') {
     return 'N/A';
   }
   
@@ -23,13 +25,20 @@ function calculateExpiry(validTo) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    // Parse date in YYYY-MM-DD format
-    const expiryDate = new Date(validTo + 'T23:59:59');
+    // Try parsing the date - handle YYYY-MM-DD format
+    let expiryDate;
+    
+    // If it's already in YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(validTo)) {
+      expiryDate = new Date(validTo + 'T00:00:00');
+    } else {
+      expiryDate = new Date(validTo);
+    }
     
     // Check if date is valid
     if (isNaN(expiryDate.getTime())) {
-      console.warn('Invalid date format:', validTo);
-      return 'Invalid';
+      console.warn('Invalid date:', validTo);
+      return validTo; // Return original value so user can see what's wrong
     }
     
     const diffTime = expiryDate - today;
@@ -41,7 +50,7 @@ function calculateExpiry(validTo) {
     return `${diffDays} days`;
   } catch (error) {
     console.error('Error calculating expiry:', error, 'for date:', validTo);
-    return 'Error';
+    return validToValue; // Return original so we can see it
   }
 }
 
@@ -60,15 +69,56 @@ fetch('data/data.json')
   .then(rawData => {
     // Debug: Log the first row to see actual column names
     if (rawData.length > 0) {
-      console.log("📋 First row keys:", Object.keys(rawData[0]));
-      console.log("📋 Sample row:", rawData[0]);
+      console.log("=== DEBUG INFO ===");
+      console.log("📋 All column names:", Object.keys(rawData[0]));
+      console.log("📋 First complete row:", rawData[0]);
+      
+      // Try to find date columns
+      const dateColumns = Object.keys(rawData[0]).filter(key => 
+        key.toLowerCase().includes('valid') || 
+        key.toLowerCase().includes('date') ||
+        key.toLowerCase().includes('expir')
+      );
+      console.log("📅 Possible date columns:", dateColumns);
+      
+      dateColumns.forEach(col => {
+        console.log(`   ${col}:`, rawData[0][col]);
+      });
     }
     
     // Clean data + add numeric Save % field and expiry
-    const data = rawData.map(row => {
-      // Try different possible column names for Valid To
-      const validTo = row['Valid To'] || row['Valid_To'] || row['ValidTo'] || row['valid_to'] || '';
-      const validFrom = row['Valid From'] || row['Valid_From'] || row['ValidFrom'] || row['valid_from'] || '';
+    const data = rawData.map((row, index) => {
+      // Try to find the Valid To column with various possible names
+      let validTo = '';
+      const possibleNames = [
+        'Valid To', 'Valid_To', 'ValidTo', 'valid_to', 'valid to',
+        'Validité jusqu\'au', 'End Date', 'end_date', 'Expiry', 'expiry'
+      ];
+      
+      for (let name of possibleNames) {
+        if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
+          validTo = row[name];
+          if (index === 0) console.log(`✅ Found Valid To in column: "${name}" = "${validTo}"`);
+          break;
+        }
+      }
+      
+      // Same for Valid From
+      let validFrom = '';
+      const possibleFromNames = [
+        'Valid From', 'Valid_From', 'ValidFrom', 'valid_from', 'valid from',
+        'Start Date', 'start_date'
+      ];
+      
+      for (let name of possibleFromNames) {
+        if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
+          validFrom = row[name];
+          break;
+        }
+      }
+      
+      const expiry = calculateExpiry(validTo);
+      if (index === 0) console.log(`⏰ Calculated expiry: "${expiry}"`);
       
       return {
         ...row,
@@ -86,7 +136,7 @@ fetch('data/data.json')
         'Valid To': validTo.toString().trim(),
         'Save %': (row['Save %'] || '').toString().trim(),
         'Save_Numeric': parseSavePercent(row['Save %']),
-        'Expiry': calculateExpiry(validTo)
+        'Expiry': expiry
       };
     });
 
@@ -94,18 +144,16 @@ fetch('data/data.json')
     allDeals = data;
 
     console.log("✅ Data loaded:", allDeals.length, "deals");
-    console.log("📅 Sample Valid To:", data[0]?.['Valid To']);
-    console.log("⏰ Sample Expiry:", data[0]?.['Expiry']);
 
     table = new Tabulator("#table", {
       data,
-      layout: "fitColumns",
+      layout: "fitDataFill",
       pagination: "local",
       paginationSize: 20,
       movableColumns: true,
       resizableColumns: true,
-      width: "100%",
-      height: "600px",  // Set fixed height to enable frozen headers
+      virtualDomBuffer: 300,
+      height: "calc(100vh - 500px)", // Dynamic height based on viewport
       columns: [
         {
           title: "Retailer",
@@ -113,7 +161,8 @@ fetch('data/data.json')
           hozAlign: "center",
           widthGrow: 1,
           minWidth: 120,
-          resizable: true
+          resizable: true,
+          frozen: false
         },
         {
           title: "Province",
@@ -213,7 +262,7 @@ fetch('data/data.json')
           title: "Expiry",
           field: "Expiry",
           hozAlign: "center",
-          width: 90,
+          width: 100,
           resizable: true
         },
         {
