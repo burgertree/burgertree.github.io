@@ -12,6 +12,21 @@ function parseSavePercent(str) {
   return match ? parseInt(match[1], 10) : 0;
 }
 
+// Helper: Calculate days until expiry
+function calculateExpiry(validTo) {
+  if (!validTo) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiryDate = new Date(validTo + 'T23:59:59');
+  const diffTime = expiryDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return 'Expired';
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return '1 day';
+  return `${diffDays} days`;
+}
+
 let table;
 let allDeals = []; // Store original data
 let activeFilters = {
@@ -25,7 +40,7 @@ let activeFilters = {
 fetch('data/data.json')
   .then(response => response.json())
   .then(rawData => {
-    // Clean data + add numeric Save % field
+    // Clean data + add numeric Save % field and expiry
     const data = rawData.map(row => ({
       ...row,
       'PC Pts': parsePoints(row['PC Pts']),
@@ -36,26 +51,15 @@ fetch('data/data.json')
       'Name': (row['Name'] || '').toString().trim(),
       'Description': (row['Description'] || '').toString().trim(),
       'Save %': (row['Save %'] || '').toString().trim(),
-      'Save_Numeric': parseSavePercent(row['Save %'])
+      'Sale_story': (row['Sale_story'] || '').toString().trim(),
+      'Save_Numeric': parseSavePercent(row['Save %']),
+      'Expiry': calculateExpiry(row['Valid To'])
     }));
 
     // Store original data
     allDeals = data;
 
-    // Extract UNIQUE, NON-EMPTY values
-    const provinces = [...new Set(
-      data.map(r => r.Province).filter(p => p && p.length > 0)
-    )].sort();
-
-    const retailers = [...new Set(
-      data.map(r => r.Retailer).filter(r => r && r.length > 0)
-    )].sort();
-
-    const brands = [...new Set(
-      data.map(r => r.Brand).filter(b => b && b.length > 0)
-    )].sort();
-
-    console.log("✅ Filter counts:", { retailers: retailers.length, provinces: provinces.length, brands: brands.length });
+    console.log("✅ Data loaded:", allDeals.length, "deals");
 
     table = new Tabulator("#table", {
       data,
@@ -63,25 +67,31 @@ fetch('data/data.json')
       pagination: "local",
       paginationSize: 20,
       movableColumns: true,
+      resizableColumns: true,  // Enable column resizing
       width: "100%",
       columns: [
         {
           title: "Retailer",
           field: "Retailer",
           hozAlign: "center",
-          width: 140
+          widthGrow: 1,
+          minWidth: 120,
+          resizable: true
         },
         {
           title: "Province",
           field: "Province",
           hozAlign: "center",
-          width: 90
+          width: 80,
+          resizable: true
         },
         {
           title: "Brand",
           field: "Brand",
           hozAlign: "center",
-          width: 130
+          widthGrow: 1,
+          minWidth: 100,
+          resizable: true
         },
         {
           title: "Name",
@@ -89,8 +99,9 @@ fetch('data/data.json')
           hozAlign: "left",
           headerHozAlign: "left",
           formatter: "plaintext",
+          widthGrow: 3,
           minWidth: 200,
-          widthGrow: 2
+          resizable: true
         },
         {
           title: "Description",
@@ -98,8 +109,9 @@ fetch('data/data.json')
           hozAlign: "left",
           headerHozAlign: "left",
           formatter: "plaintext",
+          widthGrow: 2,
           minWidth: 150,
-          widthGrow: 1
+          resizable: true
         },
         {
           title: "Price",
@@ -111,7 +123,9 @@ fetch('data/data.json')
             thousand: ",", 
             symbol: "$",
             precision: 2
-          }
+          },
+          width: 80,
+          resizable: true
         },
         {
           title: "Save %",
@@ -122,7 +136,8 @@ fetch('data/data.json')
             const bNum = bRow.getData().Save_Numeric;
             return aNum - bNum;
           },
-          width: 100
+          width: 90,
+          resizable: true
         },
         {
           title: "PC Pts",
@@ -133,17 +148,26 @@ fetch('data/data.json')
             const val = cell.getValue();
             if (val === null || val === undefined || val === 0) return "";
             return val.toLocaleString('en-CA', { maximumFractionDigits: 0 });
-          }
+          },
+          width: 90,
+          resizable: true
         },
         {
-          title: "Valid<br>From",
-          field: "Valid From",
-          hozAlign: "center"
+          title: "Sale Story",
+          field: "Sale_story",
+          hozAlign: "left",
+          headerHozAlign: "left",
+          formatter: "plaintext",
+          widthGrow: 2,
+          minWidth: 150,
+          resizable: true
         },
         {
-          title: "Valid<br>To",
-          field: "Valid To",
-          hozAlign: "center"
+          title: "Expiry",
+          field: "Expiry",
+          hozAlign: "center",
+          width: 90,
+          resizable: true
         },
         {
           title: "Details",
@@ -152,7 +176,9 @@ fetch('data/data.json')
           formatter: function(cell) {
             const url = cell.getValue();
             return url ? `<a href="${url}" target="_blank" rel="noopener">View</a>` : "";
-          }
+          },
+          width: 80,
+          resizable: true
         }
       ]
     });
@@ -355,7 +381,7 @@ function filterMagicHour() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  // Filter to only Shoppers Drug Mart deals
+  // Filter to only Shoppers Drug Mart deals from allDeals (not current table data)
   const sdmDeals = allDeals.filter(deal => {
     const retailer = (deal.Retailer || '').toLowerCase();
     return retailer.includes('shoppers') || retailer.includes('drug mart');
@@ -438,7 +464,10 @@ function filterMagicHour() {
   } else {
     table.setData([]);
     console.log("❌ No Magic Hour deals found.");
-    document.getElementById("table").innerHTML = "<p style='text-align:center;padding:40px;color:#666;'>No Magic Hour deals available today. Check back soon!</p>";
+    const tableContainer = document.getElementById("table");
+    if (tableContainer) {
+      tableContainer.innerHTML = "<p style='text-align:center;padding:40px;color:#666;'>No Magic Hour deals available today. Check back soon!</p>";
+    }
   }
 }
 
