@@ -322,6 +322,24 @@ footer {
   border-top: 1px solid #eee;
 }
 
+/* --- Improved Footer Links --- */
+.footer-links {
+  margin: 1.5rem 0;
+}
+
+.footer-links a {
+  color: #666;
+  text-decoration: none;
+  margin: 0 0.8rem;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: var(--primary-color, #E60012);
+  text-decoration: underline;
+}
+
 /* =============== Mobile =============== */
 @media (max-width: 768px) {
   .site-logo {
@@ -386,4 +404,188 @@ footer {
     padding: 4px 2px;
     font-size: 12px;
   }
+}
+
+/* --- Premium Top Cookie Banner (Glassmorphism) --- */
+#cookie-banner {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  max-width: 850px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  color: #1a1a1a;
+  padding: 1.5rem 2rem;
+  z-index: 99999;
+  display: none;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideInDown 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translate(-50%, -110%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.banner-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.banner-icon {
+  background: var(--primary-color, #E60012);
+  color: white;
+  min-width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 8px 16px rgba(230, 0, 18, 0.2);
+}
+
+.banner-text {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.banner-text strong {
+  display: block;
+  font-size: 1.25rem;
+  margin-bottom: 0.4rem;
+  color: #111;
+  letter-spacing: -0.01em;
+}
+
+.banner-text p {
+  margin: 0;
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.6;
+}
+
+.banner-text a {
+  color: var(--primary-color, #E60012);
+  text-decoration: none;
+  font-weight: 700;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.banner-text a:hover {
+  border-color: var(--primary-color, #E60012);
+}
+
+#accept-cookies {
+  background: #111;
+  color: white;
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+#accept-cookies:hover {
+  background: #333;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+#accept-cookies:active {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  #cookie-banner {
+    top: 0;
+    width: 100%;
+    max-width: none;
+    border-radius: 0 0 24px 24px;
+    padding: 1.5rem;
+    left: 0;
+    transform: none;
+  }
+
+  @keyframes slideInDown {
+    from {
+      transform: translateY(-110%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .banner-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .banner-text {
+    text-align: center;
+  }
+
+  .banner-icon {
+    display: none;
+  }
+
+  #accept-cookies {
+    width: 100%;
+    padding: 1rem;
+  }
+}
+
+/* --- Content Enrichment Styles --- */
+.main-content-enrich section {
+  margin-bottom: 3rem;
+}
+
+.main-content-enrich h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--secondary-color);
+}
+
+.main-content-enrich h2 {
+  color: var(--primary-color);
+  border-bottom: 3px solid #f0f0f0;
+  padding-bottom: 0.75rem;
+  margin-top: 2.5rem;
+  font-size: 1.75rem;
+}
+
+.main-content-enrich p {
+  line-height: 1.7;
+  font-size: 1.1rem;
+}
+
+.main-content-enrich ul {
+  padding-left: 2rem;
+}
+
+.main-content-enrich li {
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
 }
