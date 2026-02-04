@@ -1,3 +1,25 @@
+// Cookie Consent Logic
+document.addEventListener("DOMContentLoaded", function () {
+  if (!localStorage.getItem("cookieConsent")) {
+    const banner = document.createElement("div");
+    banner.id = "cookie-banner";
+    banner.innerHTML = `
+      <div class="banner-content">
+        <span>We use cookies to ensure you get the best experience on our website, including for personalized ads via Google AdSense. 
+        <a href="privacy.html">Learn more</a>.</span>
+        <button id="accept-cookies">Accept</button>
+      </div>
+    `;
+    document.body.appendChild(banner);
+    banner.style.display = "block";
+
+    document.getElementById("accept-cookies").addEventListener("click", function () {
+      localStorage.setItem("cookieConsent", "true");
+      banner.style.display = "none";
+    });
+  }
+});
+
 function parsePoints(str) {
   if (!str) return 0;
   const clean = str.toString().replace(/,/g, '').trim();
