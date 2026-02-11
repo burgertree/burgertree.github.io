@@ -189,12 +189,10 @@ fetch('data/data.json')
       data,
       layout: "fitDataFill",
       pagination: "local",
-      paginationSize: 20,
+      paginationSize: 50,
       movableColumns: true,
       resizableColumns: true,
-      virtualDomBuffer: 300,
-      height: "calc(100vh - 200px)", // Increased height (was 350px/300px)
-      placeholder: "No deals found matching your criteria", // Added placeholder
+      placeholder: "No deals found matching your criteria",
       columns: [
         {
           title: "Retailer",
@@ -344,6 +342,13 @@ function setupScrollArrows() {
     const scrollLeft = container.scrollLeft;
     const maxScroll = container.scrollWidth - container.clientWidth;
 
+    // Update Progress Bar
+    const progressBar = document.getElementById('scroll-progress');
+    if (progressBar && isScrollable) {
+      const scrollPercent = (scrollLeft / maxScroll) * 100;
+      progressBar.style.width = scrollPercent + '%';
+    }
+
     if (isScrollable) {
       if (scrollLeft > 10) {
         arrowLeft.classList.add('visible');
@@ -362,18 +367,28 @@ function setupScrollArrows() {
     }
   };
 
-  // Scroll logic
-  let scrollInterval;
+  // Scroll logic with requestAnimationFrame for buttery smoothness
+  let isScrolling = false;
+  let scrollDirection = 0;
+
+  const smoothScroll = () => {
+    if (!isScrolling) return;
+
+    // Smooth acceleration could be added here, but constant speed is usually clearer
+    container.scrollLeft += scrollDirection * 12; // Speed
+    updateArrows();
+    requestAnimationFrame(smoothScroll);
+  };
+
   const startScrolling = (direction) => {
-    clearInterval(scrollInterval);
-    scrollInterval = setInterval(() => {
-      container.scrollLeft += direction * 15;
-      updateArrows();
-    }, 16);
+    if (isScrolling && scrollDirection === direction) return;
+    isScrolling = true;
+    scrollDirection = direction;
+    requestAnimationFrame(smoothScroll);
   };
 
   const stopScrolling = () => {
-    clearInterval(scrollInterval);
+    isScrolling = false;
   };
 
   arrowLeft.addEventListener('mouseenter', () => startScrolling(-1));
@@ -381,12 +396,43 @@ function setupScrollArrows() {
   arrowRight.addEventListener('mouseenter', () => startScrolling(1));
   arrowRight.addEventListener('mouseleave', stopScrolling);
 
-  // Click to jump scroll
+  // Click to jump scroll with smooth behavior
   arrowLeft.addEventListener('click', () => {
-    container.scrollBy({ left: -300, behavior: 'smooth' });
+    container.scrollBy({ left: -400, behavior: 'smooth' });
   });
   arrowRight.addEventListener('click', () => {
-    container.scrollBy({ left: 300, behavior: 'smooth' });
+    container.scrollBy({ left: 400, behavior: 'smooth' });
+  });
+
+  // Drag to scroll functionality (Latest Design Trend)
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  container.addEventListener('mousedown', (e) => {
+    isDown = true;
+    container.classList.add('active-dragging');
+    startX = e.pageX - container.offsetLeft;
+    scrollLeft = container.scrollLeft;
+  });
+
+  container.addEventListener('mouseleave', () => {
+    isDown = false;
+    container.classList.remove('active-dragging');
+  });
+
+  container.addEventListener('mouseup', () => {
+    isDown = false;
+    container.classList.remove('active-dragging');
+  });
+
+  container.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startX) * 2; // Scroll-fast factor
+    container.scrollLeft = scrollLeft - walk;
+    updateArrows();
   });
 
   // Listen for scroll and resize

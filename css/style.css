@@ -49,7 +49,7 @@ body {
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .nav-container {
@@ -314,25 +314,40 @@ body {
   overflow-x: auto;
   width: 100%;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+  cursor: grab;
+  transition: transform 0.1s ease;
+}
+
+.table-container.active-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.table-container::-webkit-scrollbar {
+  display: none;
+  /* Chrome/Safari */
 }
 
 /* Scroll Arrows */
 .scroll-arrow {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 60px;
+  top: 0;
   height: 100%;
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), transparent);
+  width: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 20;
+  z-index: 3000;
   opacity: 0;
-  transition: opacity 0.3s ease, background 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   border: none;
   pointer-events: none;
+  background: transparent;
 }
 
 .scroll-arrow.visible {
@@ -340,17 +355,26 @@ body {
   pointer-events: auto;
 }
 
-.scroll-arrow:hover {
-  background: linear-gradient(to right, rgba(255, 255, 255, 1), transparent);
+.scroll-arrow-left {
+  left: 0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.95), transparent);
 }
 
 .scroll-arrow-right {
   right: 0;
-  background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.95), transparent);
+}
+
+.scroll-arrow:hover {
+  width: 140px;
+}
+
+.scroll-arrow-left:hover {
+  background: linear-gradient(to right, rgba(255, 255, 255, 1) 30%, transparent);
 }
 
 .scroll-arrow-right:hover {
-  background: linear-gradient(to left, rgba(255, 255, 255, 1), transparent);
+  background: linear-gradient(to left, rgba(255, 255, 255, 1) 30%, transparent);
 }
 
 .scroll-arrow svg {
@@ -370,7 +394,26 @@ body {
 }
 
 #table {
-  min-width: 1000px;
+  min-width: 1200px;
+  /* Slightly wider for better spacing */
+}
+
+/* Custom Scroll Progress Indicator */
+.scroll-progress-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.05);
+  z-index: 1100;
+}
+
+.scroll-progress-bar {
+  height: 100%;
+  background: var(--primary-color);
+  width: 0%;
+  transition: width 0.1s ease;
 }
 
 /* Frozen header - make it sticky */
@@ -378,10 +421,12 @@ body {
   background-color: #f8f9fa;
   border-bottom: 2px solid #eee;
   position: sticky;
-  top: 0;
-  z-index: 10;
+  top: 60px;
+  /* Offset for sticky top-nav */
+  z-index: 1000;
   font-weight: 700;
   color: var(--secondary-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .tabulator .tabulator-header .tabulator-col {
