@@ -32,7 +32,8 @@
 
   <!-- Main Header -->
   <header class="main-header">
-    <img src="img/logo.png" alt="SaveSave.ca" class="site-logo">
+    <h1 class="sr-only">SaveSave.ca - Canadian Grocery Deals & PC Optimum Points Tracker</h1>
+    <img src="img/logo.png" alt="SaveSave.ca Logo" class="site-logo">
 
     <!-- Deals Highlights -->
     <div class="deals-highlights">
@@ -129,8 +130,22 @@
 
 
     <!-- Table -->
-    <div class="table-container">
-      <div id="table"></div>
+    <div class="table-wrapper">
+      <button class="scroll-arrow scroll-arrow-left" id="scroll-left" aria-label="Scroll left">
+        <svg viewBox="0 0 24 24">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
+        </svg>
+      </button>
+
+      <div class="table-container">
+        <div id="table"></div>
+      </div>
+
+      <button class="scroll-arrow scroll-arrow-right" id="scroll-right" aria-label="Scroll right">
+        <svg viewBox="0 0 24 24">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
+        </svg>
+      </button>
     </div>
   </div>
 

@@ -322,11 +322,80 @@ fetch('data/data.json')
 
     // Setup filter button listeners
     setupFilterButtons();
+
+    // Setup Table Scroll Arrows
+    setupScrollArrows();
   })
   .catch(err => {
     console.error("Failed to load ", err);
     document.getElementById("table").innerHTML = "<p style='text-align:center;color:red;'>Error loading deals.</p>";
   });
+
+// Setup Table Scroll Arrows Logic
+function setupScrollArrows() {
+  const container = document.querySelector('.table-container');
+  const arrowLeft = document.getElementById('scroll-left');
+  const arrowRight = document.getElementById('scroll-right');
+
+  if (!container || !arrowLeft || !arrowRight) return;
+
+  const updateArrows = () => {
+    const isScrollable = container.scrollWidth > container.clientWidth;
+    const scrollLeft = container.scrollLeft;
+    const maxScroll = container.scrollWidth - container.clientWidth;
+
+    if (isScrollable) {
+      if (scrollLeft > 10) {
+        arrowLeft.classList.add('visible');
+      } else {
+        arrowLeft.classList.remove('visible');
+      }
+
+      if (scrollLeft < maxScroll - 10) {
+        arrowRight.classList.add('visible');
+      } else {
+        arrowRight.classList.remove('visible');
+      }
+    } else {
+      arrowLeft.classList.remove('visible');
+      arrowRight.classList.remove('visible');
+    }
+  };
+
+  // Scroll logic
+  let scrollInterval;
+  const startScrolling = (direction) => {
+    clearInterval(scrollInterval);
+    scrollInterval = setInterval(() => {
+      container.scrollLeft += direction * 15;
+      updateArrows();
+    }, 16);
+  };
+
+  const stopScrolling = () => {
+    clearInterval(scrollInterval);
+  };
+
+  arrowLeft.addEventListener('mouseenter', () => startScrolling(-1));
+  arrowLeft.addEventListener('mouseleave', stopScrolling);
+  arrowRight.addEventListener('mouseenter', () => startScrolling(1));
+  arrowRight.addEventListener('mouseleave', stopScrolling);
+
+  // Click to jump scroll
+  arrowLeft.addEventListener('click', () => {
+    container.scrollBy({ left: -300, behavior: 'smooth' });
+  });
+  arrowRight.addEventListener('click', () => {
+    container.scrollBy({ left: 300, behavior: 'smooth' });
+  });
+
+  // Listen for scroll and resize
+  container.addEventListener('scroll', updateArrows);
+  window.addEventListener('resize', updateArrows);
+
+  // Initial check
+  setTimeout(updateArrows, 500); // Wait for Tabulator to render
+}
 
 // Setup filter button event listeners
 function setupFilterButtons() {
@@ -476,7 +545,12 @@ function applyFilters() {
     }
   }
 
-  table.setData(filteredData);
+  table.setData(filteredData).then(() => {
+    const container = document.querySelector('.table-container');
+    if (container) {
+      container.dispatchEvent(new Event('scroll'));
+    }
+  });
 }
 
 // Set active button for a filter group
@@ -517,7 +591,10 @@ function filterActive() {
       d['Valid To'] >= today &&
       (d['has_Expired'] === 'FALSE' || d['has_Expired'] === undefined);
   });
-  table.setData(filteredData);
+  table.setData(filteredData).then(() => {
+    const container = document.querySelector('.table-container');
+    if (container) container.dispatchEvent(new Event('scroll'));
+  });
 }
 
 function filterBC() {
@@ -532,7 +609,10 @@ function filterBC() {
   const activeData = currentData.filter(d =>
     d['Valid From'] <= today && d['Valid To'] >= today
   );
-  table.setData(activeData);
+  table.setData(activeData).then(() => {
+    const container = document.querySelector('.table-container');
+    if (container) container.dispatchEvent(new Event('scroll'));
+  });
 }
 
 function filterON() {
@@ -546,7 +626,10 @@ function filterON() {
   const activeData = currentData.filter(d =>
     d['Valid From'] <= today && d['Valid To'] >= today
   );
-  table.setData(activeData);
+  table.setData(activeData).then(() => {
+    const container = document.querySelector('.table-container');
+    if (container) container.dispatchEvent(new Event('scroll'));
+  });
 }
 
 function filterAB() {
@@ -560,7 +643,10 @@ function filterAB() {
   const activeData = currentData.filter(d =>
     d['Valid From'] <= today && d['Valid To'] >= today
   );
-  table.setData(activeData);
+  table.setData(activeData).then(() => {
+    const container = document.querySelector('.table-container');
+    if (container) container.dispatchEvent(new Event('scroll'));
+  });
 }
 
 function filterMagicHour() {
@@ -604,5 +690,8 @@ function clearFilters() {
   if (brandInput) brandInput.value = '';
 
   // Reset table to all data
-  table.setData(allDeals);
+  table.setData(allDeals).then(() => {
+    const container = document.querySelector('.table-container');
+    if (container) container.dispatchEvent(new Event('scroll'));
+  });
 }
